@@ -21,7 +21,7 @@ Testing codevalid workflow
 - During onboarding, users must submit:  
   - Picture of the energy source  
   - Supporting documents (PDF/image)  
-  - for now store all the files locally, under onboardingdoc/userid
+  - Store all the files locally, under onboardingdoc/userid
 - Validate uploaded files for type and size.  
 - Grant access to the home page only after successful onboarding.  
 
