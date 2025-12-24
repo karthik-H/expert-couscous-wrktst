@@ -1,0 +1,38 @@
+{
+  "breakdowns": [
+    {
+      "id": "energy_data_collection",
+      "header": "Energy Data Collection",
+      "description": "Fetches energy generation data from the provided endpoint every 1 minute, stores timestamped energy data in the database, retries failed requests automatically, and logs errors.",
+      "conditions": [
+        "Data must be fetched every 1 minute from the provided endpoint.",
+        "Fetched data must be timestamped and stored in the database.",
+        "Failed requests must be retried automatically.",
+        "Errors must be logged."
+      ]
+    },
+    {
+      "id": "user_onboarding",
+      "header": "User Onboarding",
+      "description": "Allows users to register with basic information and requires submission of a picture of the energy source and supporting documents (PDF/image). Uploaded files are validated for type and size. Access to the home page is granted only after successful onboarding.",
+      "conditions": [
+        "Users must register with basic information.",
+        "Users must submit a picture of the energy source during onboarding.",
+        "Users must submit supporting documents (PDF/image) during onboarding.",
+        "Uploaded files must be validated for type and size.",
+        "Access to the home page is granted only after successful onboarding."
+      ]
+    },
+    {
+      "id": "energy_monitoring",
+      "header": "Energy Monitoring",
+      "description": "Displays current energy generated for the user\u2019s energy source on the home page and allows users to view historical energy data in table or chart format.",
+      "conditions": [
+        "Home page must display current energy generated for the user\u2019s energy source.",
+        "Users must be able to view historical energy data in table or chart format."
+      ]
+    }
+  ],
+  "last_updated": "2025-12-24T02:21:26.027348",
+  "version": "1.0"
+}
