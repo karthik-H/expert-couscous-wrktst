@@ -23,7 +23,7 @@ Testing codevalid workflow
   - Supporting documents (PDF/image)  
   - Store all the files locally, under onboardingdoc/userid
 - Validate uploaded files for type and size.  
-- Grant access to the home page only after successful onboarding.  
+- Uploading files is optional provide a link to  home page as well.
 
 ### 2.3 Energy Monitoring
 - Home page displays **current energy generated** for the user’s energy source.  
