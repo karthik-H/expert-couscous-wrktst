@@ -14,12 +14,13 @@
     {
       "id": "user_onboarding",
       "header": "User Onboarding",
-      "description": "Allows users to register with basic information and requires submission of a picture of the energy source and supporting documents (PDF/image). Uploaded files are validated for type and size. Access to the home page is granted only after successful onboarding.",
+      "description": "Allows users to register with basic information and requires submission of a picture of the energy source and supporting documents (PDF/image). Uploaded files are validated for type and size. All files must be stored locally under onboardingdoc/userid. Access to the home page is granted only after successful onboarding.",
       "conditions": [
         "Users must register with basic information.",
         "Users must submit a picture of the energy source during onboarding.",
         "Users must submit supporting documents (PDF/image) during onboarding.",
         "Uploaded files must be validated for type and size.",
+        "All files must be stored locally under onboardingdoc/userid.",
         "Access to the home page is granted only after successful onboarding."
       ]
     },
@@ -33,6 +34,6 @@
       ]
     }
   ],
-  "last_updated": "2025-12-24T02:46:07.934858",
+  "last_updated": "2025-12-24T02:46:49.158448",
   "version": "1.0"
 }
