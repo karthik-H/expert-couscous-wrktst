@@ -6,7 +6,7 @@
         "name": "startup_event",
         "file_path": "backend/app/main.py",
         "type": "function",
-        "How_is_it_connected_to_implementation": "On FastAPI startup, this function starts the scheduler, which triggers periodic energy data collection.",
+        "How_is_it_connected_to_implementation": "On FastAPI startup, this function starts the scheduler which triggers periodic energy data collection.",
         "pseudo_code": "On application startup:\n    Log 'Starting scheduler...'\n    Call scheduler.start()"
       },
       {
@@ -15,115 +15,113 @@
         "file_path": "backend/app/services/scheduler.py",
         "type": "function",
         "How_is_it_connected_to_implementation": "Schedules fetch_energy_data to run every 1 minute using APScheduler.",
-        "pseudo_code": "Define start():\n    Add fetch_energy_data as a job to scheduler, interval=1 minute\n    Start the scheduler"
+        "pseudo_code": "Define start():\n    Schedule fetch_energy_data to run every 1 minute\n    Start the scheduler"
       },
       {
-        "id": "scheduler_fetch_energy_data",
+        "id": "fetch_energy_data",
         "name": "fetch_energy_data",
         "file_path": "backend/app/services/scheduler.py",
         "type": "function",
-        "How_is_it_connected_to_implementation": "Implements the core logic for fetching (mocked), retrying, logging, and storing energy data in the database.",
-        "pseudo_code": "Define fetch_energy_data():\n    Log 'Fetching energy data...'\n    Set max_retries = 3\n    For attempt in 0 to max_retries-1:\n        Try:\n            generated = random value (mocked, should be fetched from endpoint)\n            Open DB session\n            Try:\n                Create EnergyData with generated_energy and current timestamp\n                Add to DB and commit\n                Log 'Data saved'\n                Break (success)\n            Finally:\n                Close DB session\n        Except Exception as e:\n            Log error with attempt number\n            If last attempt:\n                Log 'Max retries reached. Data fetch failed.'"
+        "How_is_it_connected_to_implementation": "Implements the core logic for fetching (mocked), retrying, logging, and storing energy data.",
+        "pseudo_code": "Define fetch_energy_data():\n    Log 'Fetching energy data...'\n    For up to 3 attempts:\n        Try:\n            Simulate fetching energy data (random value)\n            Open DB session\n            Create EnergyData object with generated value and current timestamp\n            Add to DB and commit\n            Log 'Data saved'\n            Break (success)\n        Except Exception:\n            Log error with attempt number\n            If last attempt:\n                Log 'Max retries reached. Data fetch failed.'"
       }
     ],
     "missing_implementations": [
-      "Data is not fetched from a configurable external endpoint via environment variable (currently mocked with random value).",
-      "No validation that only data in Mega watt hour units is accepted (currently no unit check, and logs say kWh).",
-      "No check for the unit in the fetched data before storing.",
-      "No actual HTTP request to an external endpoint.",
-      "No use of environment variable to configure the endpoint."
+      "Data is not fetched from a configurable external endpoint via environment variable; it is currently mocked.",
+      "No validation that only data in Mega watt hour units is accepted (unit is not checked or stored).",
+      "No code to check the unit of fetched data before storing.",
+      "No code to parse or use an endpoint from an environment variable."
     ]
   },
   "user_onboarding": {
     "implementation": [
       {
-        "id": "Register",
-        "name": "Register",
-        "file_path": "frontend/src/views/Register.tsx",
-        "type": "component",
-        "How_is_it_connected_to_implementation": "UI component for user registration. Collects Name, Email, Password and calls the backend registration endpoint.",
-        "pseudo_code": "Display registration form with fields: Full Name, Email, Password\nOn form submit:\n    Send POST request to /auth/register with user info\n    If successful:\n        Redirect to login page\n    Else:\n        Show error message"
-      },
-      {
-        "id": "register",
-        "name": "register",
-        "file_path": "backend/app/api/auth.py",
-        "type": "endpoint",
-        "How_is_it_connected_to_implementation": "API endpoint for registering a new user. Stores user info and hashed password in the database.",
-        "pseudo_code": "If user with given email exists:\n    Raise error 'Email already registered'\nHash the password\nCreate new user with email, full name, hashed password\nAdd user to database\nReturn user info"
-      },
-      {
-        "id": "ProtectedRoute",
-        "name": "ProtectedRoute",
-        "file_path": "frontend/src/components/ProtectedRoute.tsx",
-        "type": "component",
-        "How_is_it_connected_to_implementation": "Guards access to dashboard and onboarding. Redirects to onboarding if user is not onboarded, but allows dashboard access even if documents are not uploaded (after onboarding is marked complete).",
-        "pseudo_code": "On mount:\n    Check if user is authenticated and onboarded\n    If not authenticated:\n        Redirect to /login\n    If not onboarded and not on /onboarding:\n        Redirect to /onboarding\n    Else:\n        Render child routes (dashboard, onboarding, etc.)"
-      },
-      {
-        "id": "Onboarding",
+        "id": "frontend_onboarding_component",
         "name": "Onboarding",
         "file_path": "frontend/src/views/Onboarding.tsx",
         "type": "component",
-        "How_is_it_connected_to_implementation": "UI for onboarding. Allows users to upload energy source picture and supporting document (PDF/image), or skip uploads and proceed to dashboard.",
-        "pseudo_code": "Display form with file inputs for energy source picture and supporting document\nOn submit:\n    If files selected:\n        Create FormData with files\n        POST to /onboarding/upload\n        On success, redirect to dashboard\n    Else:\n        Show error\nOn 'Skip for Now' click:\n    POST to /onboarding/upload with no files\n    On success, redirect to dashboard"
+        "How_is_it_connected_to_implementation": "UI component that allows users to optionally upload an energy source picture and supporting document (PDF/image), or skip the upload and proceed to the dashboard. Handles file selection, form submission, and skip logic.",
+        "pseudo_code": "Display form with:\n  - File input for energy source picture (image/*)\n  - File input for supporting document (image/*, application/pdf)\n  - Submit button (calls handleSubmit)\n  - Skip button (calls handleSkip)\n\nhandleSubmit:\n  - Prevent default form submission\n  - Create FormData\n  - If files selected, append to FormData\n  - POST to /onboarding/upload with FormData\n  - On success, show message and redirect to dashboard\n  - On error, display error message\n\nhandleSkip:\n  - POST to /onboarding/upload with no files\n  - On success, show message and redirect to dashboard\n  - On error, display error message"
       },
       {
-        "id": "submit_onboarding",
+        "id": "backend_onboarding_upload_endpoint",
         "name": "submit_onboarding",
         "file_path": "backend/app/api/onboarding.py",
         "type": "endpoint",
-        "How_is_it_connected_to_implementation": "API endpoint for onboarding. Handles file uploads, validates type and size, stores files under onboardingdoc/{userid}, and marks user as onboarded.",
-        "pseudo_code": "If energy_pic provided and not image type:\n    Raise error\nIf doc provided and not PDF or image:\n    Raise error\nFor each provided file:\n    If file size > 5MB:\n        Raise error\nCreate user-specific directory onboardingdoc/{userid}\nIf energy_pic provided:\n    Save file as energy_source.ext\nIf doc provided:\n    Save file as supporting_doc.ext\nUpdate user record with file paths if provided\nMark user as onboarded\nCommit changes\nReturn status"
+        "How_is_it_connected_to_implementation": "API endpoint that receives onboarding uploads. Validates file types and sizes, stores files under onboardingdoc/{userid}, and marks user as onboarded. Allows skipping uploads by accepting empty files.",
+        "pseudo_code": "If energy_pic provided:\n  - Check content_type starts with 'image'\n  - If not, raise error\nIf doc provided:\n  - Check content_type is application/pdf or image/jpeg/png\n  - If not, raise error\nFor each provided file:\n  - Check file size <= 5MB\n  - If not, raise error\nCreate user-specific directory onboardingdoc/{userid}\nIf energy_pic provided:\n  - Save as energy_source.{ext} in user dir\nIf doc provided:\n  - Save as supporting_doc.{ext} in user dir\nIf pic_path set, update user.energy_source_pic\nIf doc_path set, update user.supporting_doc\nSet user.is_onboarded = True\nCommit changes\nReturn onboarding_complete status"
       },
       {
-        "id": "Dashboard",
-        "name": "Dashboard",
-        "file_path": "frontend/src/views/Dashboard.tsx",
+        "id": "frontend_register_component",
+        "name": "Register",
+        "file_path": "frontend/src/views/Register.tsx",
         "type": "component",
-        "How_is_it_connected_to_implementation": "Main dashboard page. Accessible after onboarding, even if documents were not uploaded.",
-        "pseudo_code": "On mount:\n    Fetch current energy and history data\n    Display current energy and history chart\n    Provide logout button"
+        "How_is_it_connected_to_implementation": "UI component that allows users to register with basic information (Name, Email, Password). On successful registration, redirects to login.",
+        "pseudo_code": "Display registration form with:\n  - Full Name input\n  - Email input\n  - Password input\n  - Submit button\nOn submit:\n  - POST to /auth/register with form data\n  - On success, redirect to login\n  - On error, display error message"
+      },
+      {
+        "id": "backend_register_endpoint",
+        "name": "register",
+        "file_path": "backend/app/api/auth.py",
+        "type": "endpoint",
+        "How_is_it_connected_to_implementation": "API endpoint that creates a new user with name, email, and password. Checks for duplicate email, hashes password, and stores user.",
+        "pseudo_code": "If user with email exists:\n  - Raise error\nHash password\nCreate new user with email, full_name, hashed_password\nAdd user to DB\nCommit and refresh\nReturn new user"
       }
     ],
     "missing_implementations": [
-      "Uploaded files are not validated for type image/* (all types) in the backend; only image/jpeg and image/png are allowed for supporting documents, not all image/* types.",
-      "There is no explicit validation for file size on the frontend before upload (only backend validation).",
-      "The onboarding UI does not display the dashboard link directly during onboarding, but provides a 'Skip for Now' button which programmatically redirects to the dashboard."
+      "A link to the home page (dashboard) must be provided during onboarding to allow skipping uploads.",
+      "Access to the main dashboard must be allowed even if documents are not uploaded (currently, backend/app/api/energy.py blocks access if user.is_onboarded is False, but does not check for document upload status; if is_onboarded is set True on skip, this is satisfied, but the dashboard link is not explicitly provided in the onboarding UI)."
     ]
   },
   "energy_monitoring": {
     "implementation": [
       {
-        "id": "Dashboard",
+        "id": "frontend_dashboard_component",
         "name": "Dashboard",
         "file_path": "frontend/src/views/Dashboard.tsx",
         "type": "component",
-        "How_is_it_connected_to_implementation": "Main UI component for the home page. Fetches and displays the current energy generated and historical energy data in a chart.",
-        "pseudo_code": "On mount:\n    Call fetchData()\n    Set interval to call fetchData every minute\n\nfetchData():\n    Call api.get('/energy/current')\n    Call api.get('/energy/history')\n    Set currentEnergy from current response\n    Set history from history response (reversed)\n\nRender:\n    Show currentEnergy in a card\n    Show history as a line chart (Generation History)\n"
+        "How_is_it_connected_to_implementation": "Main UI component for the home page. Fetches and displays the current energy generated and historical energy data in a chart. Calls backend endpoints to retrieve data.",
+        "pseudo_code": "On mount:\n    Call fetchData()\n    Every 60 seconds, call fetchData()\n\nfetchData():\n    Call api.get('/energy/current')\n    Call api.get('/energy/history')\n    Set currentEnergy from /energy/current\n    Set history from /energy/history (reversed)\n\nRender:\n    Show currentEnergy in large font\n    Show history as a line chart (using recharts)\n    Show logout button"
       },
       {
-        "id": "/energy/current",
-        "name": "get_current_energy",
-        "file_path": "backend/app/api/energy.py",
-        "type": "endpoint",
-        "How_is_it_connected_to_implementation": "API endpoint called by the Dashboard to get the latest energy data for the current user.",
-        "pseudo_code": "If current_user is not onboarded:\n    Raise 403 error\nQuery EnergyData for the latest record (order by timestamp desc)\nIf no record:\n    Raise 404 error\nReturn the latest EnergyData"
-      },
-      {
-        "id": "/energy/history",
-        "name": "get_energy_history",
-        "file_path": "backend/app/api/energy.py",
-        "type": "endpoint",
-        "How_is_it_connected_to_implementation": "API endpoint called by the Dashboard to get historical energy data for the current user.",
-        "pseudo_code": "If current_user is not onboarded:\n    Raise 403 error\nQuery EnergyData for the last N records (order by timestamp desc, limit N)\nReturn the list of EnergyData"
-      },
-      {
-        "id": "api",
+        "id": "frontend_api_client",
         "name": "api (axios instance)",
         "file_path": "frontend/src/api/client.ts",
         "type": "function",
-        "How_is_it_connected_to_implementation": "Configured Axios instance used by Dashboard to make authenticated requests to the backend energy endpoints.",
-        "pseudo_code": "Create axios instance with baseURL\nAdd request interceptor:\n    If token in localStorage:\n        Add Authorization header\nExport axios instance"
+        "How_is_it_connected_to_implementation": "Handles HTTP requests from the frontend to the backend, including authentication. Used by Dashboard to call energy endpoints.",
+        "pseudo_code": "Create axios instance with baseURL\nAdd interceptor:\n    If token in localStorage:\n        Add Authorization header\nExport api instance"
+      },
+      {
+        "id": "backend_energy_current_endpoint",
+        "name": "get_current_energy",
+        "file_path": "backend/app/api/energy.py",
+        "type": "endpoint",
+        "How_is_it_connected_to_implementation": "API endpoint at /api/energy/current. Returns the latest energy data for the user. Called by the Dashboard to display current energy generated.",
+        "pseudo_code": "If user is not onboarded:\n    Raise 403 error\nQuery EnergyData for latest record (order by timestamp desc)\nIf no record:\n    Raise 404 error\nReturn latest record"
+      },
+      {
+        "id": "backend_energy_history_endpoint",
+        "name": "get_energy_history",
+        "file_path": "backend/app/api/energy.py",
+        "type": "endpoint",
+        "How_is_it_connected_to_implementation": "API endpoint at /api/energy/history. Returns a list of historical energy data for the user. Called by the Dashboard to display historical data in a chart.",
+        "pseudo_code": "If user is not onboarded:\n    Raise 403 error\nQuery EnergyData for last N records (default 100, order by timestamp desc)\nReturn list of records"
+      },
+      {
+        "id": "backend_energy_model",
+        "name": "EnergyData",
+        "file_path": "backend/app/models.py",
+        "type": "function",
+        "How_is_it_connected_to_implementation": "SQLAlchemy model for energy data. Used by endpoints to store and retrieve energy generation records.",
+        "pseudo_code": "Table: energy_data\nColumns:\n    id (PK)\n    timestamp (DateTime, default now)\n    generated_energy (Float)\n    user_id (FK to users.id, nullable)\nRelationship:\n    owner (User)"
+      },
+      {
+        "id": "backend_energy_schema",
+        "name": "EnergyData (Pydantic schema)",
+        "file_path": "backend/app/schemas.py",
+        "type": "function",
+        "How_is_it_connected_to_implementation": "Pydantic schema for serializing/deserializing energy data between backend and frontend.",
+        "pseudo_code": "class EnergyData(BaseModel):\n    id: int\n    timestamp: datetime\n    generated_energy: float\n    user_id: Optional[int]\n    Config: orm_mode = True"
       }
     ],
     "missing_implementations": [
