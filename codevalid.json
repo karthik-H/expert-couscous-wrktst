@@ -10,7 +10,7 @@
         "Failed requests must be retried automatically up to 3 attempts.",
         "Errors must be logged using standard logging."
       ],
-      "change_status": "updated"
+      "change_status": ""
     },
     {
       "id": "user_onboarding",
@@ -25,7 +25,7 @@
         "A link to the home page (dashboard) must be provided during onboarding to allow skipping uploads.",
         "Access to the main dashboard must be allowed even if documents are not uploaded."
       ],
-      "change_status": "updated"
+      "change_status": ""
     },
     {
       "id": "energy_monitoring",
@@ -38,6 +38,6 @@
       "change_status": ""
     }
   ],
-  "last_updated": "2025-12-27T05:45:55.242699",
+  "last_updated": "2025-12-27T06:51:13.544940",
   "version": "1.0"
 }
