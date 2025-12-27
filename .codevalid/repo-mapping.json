@@ -1,0 +1,109 @@
+{
+  "energy_data_collection": {
+    "implementation": [
+      {
+        "name": "start",
+        "file_path": "backend/app/main.py",
+        "type": "function",
+        "How_is_it_connected_to_implementation": "On FastAPI startup, this function is called to start the scheduler, which triggers periodic energy data collection.",
+        "pseudo_code": "On application startup:\n    Log 'Starting scheduler...'\n    Call scheduler.start()"
+      },
+      {
+        "name": "start",
+        "file_path": "backend/app/services/scheduler.py",
+        "type": "function",
+        "How_is_it_connected_to_implementation": "Initializes the APScheduler to run fetch_energy_data every 1 minute.",
+        "pseudo_code": "Define start():\n    Schedule fetch_energy_data to run every 1 minute\n    Start the scheduler"
+      },
+      {
+        "name": "fetch_energy_data",
+        "file_path": "backend/app/services/scheduler.py",
+        "type": "function",
+        "How_is_it_connected_to_implementation": "Implements the core logic for fetching (mocked), retrying, storing, and logging energy data.",
+        "pseudo_code": "Define fetch_energy_data():\n    Log 'Fetching energy data...'\n    Set max_retries = 3\n    For attempt in 0 to max_retries-1:\n        Try:\n            generated = random value (mocked fetch)\n            Open database session\n            Try:\n                Create EnergyData with generated and current timestamp\n                Add to database\n                Commit\n                Log 'Data saved'\n                Break (success)\n            Finally:\n                Close database session\n        Except Exception as e:\n            Log error with attempt number\n            If last attempt:\n                Log 'Max retries reached. Data fetch failed.'"
+      }
+    ],
+    "missing_implementations": [
+      "Data must be fetched every 1 minute from an external endpoint configurable via environment variable.",
+      "Fetched data must be timestamped and stored in the database. (Partially: data is timestamped and stored, but not from a real external endpoint)",
+      "External endpoint is not used; data is mocked, and no environment variable is read for endpoint configuration."
+    ]
+  },
+  "user_onboarding": {
+    "implementation": [
+      {
+        "name": "Register (React component)",
+        "file_path": "frontend/src/views/Register.tsx",
+        "type": "component",
+        "How_is_it_connected_to_implementation": "Provides the UI for user registration, collects Name, Email, and Password, and sends them to the backend /auth/register endpoint.",
+        "pseudo_code": "Display registration form with fields: Full Name, Email, Password\nOn form submit:\n    Send POST request to /auth/register with user data\n    If successful:\n        Redirect to login page\n    Else:\n        Show error message"
+      },
+      {
+        "name": "register",
+        "file_path": "backend/app/api/auth.py",
+        "type": "endpoint",
+        "How_is_it_connected_to_implementation": "API endpoint that creates a new user with Name, Email, and Password (hashed).",
+        "pseudo_code": "Receive POST request with user registration data\nCheck if email already exists\nIf exists:\n    Return error\nElse:\n    Hash password\n    Create new user in database\n    Return user info"
+      },
+      {
+        "name": "Onboarding (React component)",
+        "file_path": "frontend/src/views/Onboarding.tsx",
+        "type": "component",
+        "How_is_it_connected_to_implementation": "Provides UI for uploading energy source picture and supporting documents (PDF/image), validates file types on input, allows skipping upload, and links to dashboard.",
+        "pseudo_code": "Display form with file inputs for energy source picture and supporting document\nAllow user to select files (image/*, application/pdf)\nOn submit:\n    Create FormData with files\n    POST to /onboarding/upload\n    On success:\n        Show message and redirect to dashboard\n    On error:\n        Show error message\nOn 'Skip for Now' button:\n    POST to /onboarding/upload with no files\n    On success:\n        Redirect to dashboard"
+      },
+      {
+        "name": "submit_onboarding",
+        "file_path": "backend/app/api/onboarding.py",
+        "type": "endpoint",
+        "How_is_it_connected_to_implementation": "API endpoint that receives uploaded files, validates type and size, stores them under onboardingdoc/{userid}, and marks user as onboarded. Allows skipping if no files are provided.",
+        "pseudo_code": "If energy_pic is provided:\n    Validate content_type is image/*\nIf doc is provided:\n    Validate content_type is application/pdf or image/jpeg/png\nFor each file provided:\n    Check file size <= 5MB\nCreate user-specific directory onboardingdoc/{userid}\nIf energy_pic is provided:\n    Save as energy_source.{ext}\nIf doc is provided:\n    Save as supporting_doc.{ext}\nUpdate user record with file paths if provided\nSet user.is_onboarded = True\nCommit changes\nReturn onboarding_complete status"
+      }
+    ],
+    "missing_implementations": [
+      "Access to the main dashboard must be allowed even if documents are not uploaded (backend endpoints in energy.py currently require is_onboarded == True, so skipping uploads is allowed, but if is_onboarded is not set True, dashboard access is denied. However, the onboarding endpoint always sets is_onboarded = True, even if no files are uploaded, so this is technically implemented, but the logic is not explicit for dashboard access regardless of uploads.)"
+    ]
+  },
+  "energy_monitoring": {
+    "implementation": [
+      {
+        "name": "Dashboard",
+        "file_path": "frontend/src/views/Dashboard.tsx",
+        "type": "component",
+        "How_is_it_connected_to_implementation": "Main UI component for the home page. Fetches and displays the current energy generated and historical energy data (as a chart) for the user.",
+        "pseudo_code": "On mount:\n    Call fetchData()\n    Set interval to call fetchData every minute\n\nfetchData():\n    Call api.get('/energy/current') to get current energy\n    Call api.get('/energy/history') to get historical energy data\n    Update state with current energy and history\n\nRender:\n    Show current energy in a card\n    Show historical energy data in a line chart"
+      },
+      {
+        "name": "api.get('/energy/current')",
+        "file_path": "frontend/src/api/client.ts",
+        "type": "function",
+        "How_is_it_connected_to_implementation": "Makes an HTTP GET request to the backend to fetch the latest energy data for the user. Used by the Dashboard component.",
+        "pseudo_code": "Add Authorization header with token if present\nSend GET request to /energy/current endpoint\nReturn response data"
+      },
+      {
+        "name": "get_current_energy",
+        "file_path": "backend/app/api/energy.py",
+        "type": "endpoint",
+        "How_is_it_connected_to_implementation": "Backend API endpoint that returns the latest energy data for the current user. Called by the frontend via api.get('/energy/current').",
+        "pseudo_code": "If user is not onboarded:\n    Raise 403 error\nQuery EnergyData table for the latest record for the user\nIf no data found:\n    Raise 404 error\nReturn the latest energy data"
+      },
+      {
+        "name": "api.get('/energy/history')",
+        "file_path": "frontend/src/api/client.ts",
+        "type": "function",
+        "How_is_it_connected_to_implementation": "Makes an HTTP GET request to the backend to fetch historical energy data for the user. Used by the Dashboard component.",
+        "pseudo_code": "Add Authorization header with token if present\nSend GET request to /energy/history endpoint\nReturn response data"
+      },
+      {
+        "name": "get_energy_history",
+        "file_path": "backend/app/api/energy.py",
+        "type": "endpoint",
+        "How_is_it_connected_to_implementation": "Backend API endpoint that returns a list of historical energy data for the current user. Called by the frontend via api.get('/energy/history').",
+        "pseudo_code": "If user is not onboarded:\n    Raise 403 error\nQuery EnergyData table for the latest N records for the user\nReturn the list of energy data"
+      }
+    ],
+    "missing_implementations": [
+      "Users must be able to view historical energy data in table format."
+    ]
+  }
+}
