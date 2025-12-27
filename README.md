@@ -7,7 +7,7 @@ Testing codevalid workflow
 - **Backend:** Python, FastAPI  
 - **Frontend:** TypeScript, React  
 - **Database:** PostgreSQL / MongoDB (for storing users and energy data)  
-- **Others:** Cron or background task scheduler for periodic energy data fetching   
+- **Others:** Cron or background task scheduler for periodic energy data fetching    
 
 ## 2. Functional Requirements
  
