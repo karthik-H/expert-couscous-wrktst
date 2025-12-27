@@ -3,26 +3,29 @@
     {
       "id": "energy_data_collection",
       "header": "Energy Data Collection",
-      "description": "Fetches energy generation data from the provided endpoint every 1 minute, stores timestamped energy data in the database, retries failed requests automatically, and logs errors.",
+      "description": "Fetches energy generation data from a configurable external endpoint every 1 minute, stores timestamped energy data in the database, retries failed requests up to 3 times, and logs errors using standard logging.",
       "conditions": [
-        "Data must be fetched every 1 minute from the provided endpoint.",
+        "Data must be fetched every 1 minute from an external endpoint configurable via environment variable.",
         "Fetched data must be timestamped and stored in the database.",
-        "Failed requests must be retried automatically.",
-        "Errors must be logged."
-      ]
+        "Failed requests must be retried automatically up to 3 attempts.",
+        "Errors must be logged using standard logging."
+      ],
+      "change_status": "updated"
     },
     {
       "id": "user_onboarding",
       "header": "User Onboarding",
-      "description": "Allows users to register with basic information and optionally submit a picture of the energy source and supporting documents (PDF/image). Uploaded files are validated for type and size and stored locally under onboardingdoc/userid. A link to the home page must be provided during onboarding.",
+      "description": "Allows users to register with basic information (Name, Email, Password) and optionally submit a picture of the energy source and supporting documents (PDF/image). Uploaded files are validated for type (image/*, application/pdf) and size (limit: 5MB) and stored locally under onboardingdoc/{userid}. A link to the home page (dashboard) must be provided during onboarding to allow skipping uploads, and access to the dashboard is allowed even if documents are not uploaded.",
       "conditions": [
-        "Users can register with basic information.",
+        "Users can register with basic information (Name, Email, Password).",
         "Users may optionally submit a picture of the energy source during onboarding.",
         "Users may optionally submit supporting documents (PDF/image) during onboarding.",
-        "Uploaded files must be validated for type and size.",
-        "All files must be stored locally under onboardingdoc/userid.",
-        "A link to the home page must be provided during onboarding."
-      ]
+        "Uploaded files must be validated for type (image/*, application/pdf) and size (limit: 5MB).",
+        "All files must be stored locally under onboardingdoc/{userid}.",
+        "A link to the home page (dashboard) must be provided during onboarding to allow skipping uploads.",
+        "Access to the main dashboard must be allowed even if documents are not uploaded."
+      ],
+      "change_status": "updated"
     },
     {
       "id": "energy_monitoring",
@@ -31,9 +34,10 @@
       "conditions": [
         "Home page must display current energy generated for the user\u2019s energy source.",
         "Users must be able to view historical energy data in table or chart format."
-      ]
+      ],
+      "change_status": ""
     }
   ],
-  "last_updated": "2025-12-24T02:58:16.211194",
+  "last_updated": "2025-12-27T05:45:55.242699",
   "version": "1.0"
 }
