@@ -1,0 +1,381 @@
+{
+  "function": [
+    {
+      "implementation_id": "main_startup_event",
+      "test_cases": [
+        {
+          "id": "startup_event_scheduler_starts_successfully",
+          "name": "test_scheduler_starts_on_startup",
+          "description": "Verify that the scheduler is started when the FastAPI application starts up.",
+          "type": "positive",
+          "test_setup": {
+            "given": "A FastAPI app with the startup_event registered and a mock scheduler.",
+            "when": "The application startup event is triggered.",
+            "then": "The scheduler.start() method is called exactly once."
+          },
+          "implementation_id": "main_startup_event"
+        },
+        {
+          "id": "startup_event_logs_starting_scheduler",
+          "name": "test_logs_starting_scheduler_message",
+          "description": "Ensure that the log message 'Starting scheduler...' is emitted on startup.",
+          "type": "positive",
+          "test_setup": {
+            "given": "A FastAPI app with logging configured and the startup_event registered.",
+            "when": "The application startup event is triggered.",
+            "then": "The log contains the message 'Starting scheduler...'."
+          },
+          "implementation_id": "main_startup_event"
+        },
+        {
+          "id": "startup_event_scheduler_start_failure",
+          "name": "test_scheduler_start_failure_logs_error",
+          "description": "Verify that if scheduler.start() raises an exception, the error is logged.",
+          "type": "negative",
+          "test_setup": {
+            "given": "A FastAPI app with the startup_event registered and a mock scheduler that raises an exception on start.",
+            "when": "The application startup event is triggered.",
+            "then": "An error is logged indicating the failure to start the scheduler."
+          },
+          "implementation_id": "main_startup_event"
+        },
+        {
+          "id": "energy_data_collection_periodic_trigger",
+          "name": "test_scheduler_triggers_periodic_collection",
+          "description": "Ensure the scheduler is configured to trigger energy data collection every 1 minute.",
+          "type": "positive",
+          "test_setup": {
+            "given": "A scheduler with the energy data collection job registered.",
+            "when": "The scheduler is started.",
+            "then": "The energy data collection job is scheduled to run every 1 minute."
+          },
+          "implementation_id": "main_startup_event"
+        },
+        {
+          "id": "energy_data_collection_successful_fetch_and_store",
+          "name": "test_energy_data_fetched_and_stored",
+          "description": "Verify that energy data is fetched from the external endpoint and stored in the database with a timestamp.",
+          "type": "positive",
+          "test_setup": {
+            "given": "A mock external endpoint returning valid energy data in Mega watt hour units.",
+            "when": "The scheduled job runs.",
+            "then": "The data is stored in the database with the correct timestamp and unit."
+          },
+          "implementation_id": "main_startup_event"
+        },
+        {
+          "id": "energy_data_collection_retry_on_failure",
+          "name": "test_energy_data_collection_retries_on_failure",
+          "description": "Ensure that if the external endpoint fails, the system retries up to 3 times.",
+          "type": "negative",
+          "test_setup": {
+            "given": "A mock external endpoint that fails (e.g., times out or returns 500).",
+            "when": "The scheduled job runs.",
+            "then": "The system retries the request up to 3 times before logging an error."
+          },
+          "implementation_id": "main_startup_event"
+        },
+        {
+          "id": "energy_data_collection_logs_error_on_failure",
+          "name": "test_logs_error_on_failed_data_collection",
+          "description": "Verify that errors during data collection are logged using standard logging.",
+          "type": "negative",
+          "test_setup": {
+            "given": "A mock external endpoint that always fails.",
+            "when": "The scheduled job runs and all retries fail.",
+            "then": "An error is logged indicating the failure to collect energy data."
+          },
+          "implementation_id": "main_startup_event"
+        },
+        {
+          "id": "energy_data_collection_rejects_invalid_units",
+          "name": "test_rejects_non_megawatt_hour_units",
+          "description": "Ensure that only energy data in Mega watt hour units is accepted and stored.",
+          "type": "negative",
+          "test_setup": {
+            "given": "A mock external endpoint returning energy data in units other than Mega watt hour.",
+            "when": "The scheduled job runs.",
+            "then": "The data is not stored, and an error is logged about invalid units."
+          },
+          "implementation_id": "main_startup_event"
+        },
+        {
+          "id": "energy_data_collection_handles_empty_response",
+          "name": "test_handles_empty_external_response",
+          "description": "Verify that an empty response from the external endpoint is handled gracefully.",
+          "type": "negative",
+          "test_setup": {
+            "given": "A mock external endpoint returning an empty response.",
+            "when": "The scheduled job runs.",
+            "then": "No data is stored, and an error is logged about the empty response."
+          },
+          "implementation_id": "main_startup_event"
+        },
+        {
+          "id": "energy_data_collection_handles_partial_failure",
+          "name": "test_partial_failure_then_success",
+          "description": "Ensure that if the first request fails but a retry succeeds, data is stored and no error is logged.",
+          "type": "positive",
+          "test_setup": {
+            "given": "A mock external endpoint that fails on the first request but succeeds on the second.",
+            "when": "The scheduled job runs.",
+            "then": "The data is stored, and no error is logged."
+          },
+          "implementation_id": "main_startup_event"
+        }
+      ]
+    },
+    {
+      "implementation_id": "scheduler_start",
+      "test_cases": [
+        {
+          "id": "scheduler_start_positive_job_added",
+          "name": "test_scheduler_starts_and_adds_job",
+          "description": "Verify that the start function adds fetch_energy_data as a job to the scheduler with a 1-minute interval and starts the scheduler.",
+          "type": "positive",
+          "test_setup": {
+            "given": "A mock or test instance of the scheduler and fetch_energy_data function.",
+            "when": "start() is called.",
+            "then": "fetch_energy_data is scheduled to run every 1 minute and the scheduler is started."
+          },
+          "implementation_id": "scheduler_start"
+        },
+        {
+          "id": "scheduler_start_duplicate_job",
+          "name": "test_scheduler_duplicate_job_handling",
+          "description": "Ensure that calling start multiple times does not add duplicate jobs or raises an appropriate error.",
+          "type": "negative",
+          "test_setup": {
+            "given": "Scheduler already has fetch_energy_data scheduled.",
+            "when": "start() is called again.",
+            "then": "No duplicate job is added, or an error is logged/raised as per implementation."
+          },
+          "implementation_id": "scheduler_start"
+        },
+        {
+          "id": "scheduler_start_scheduler_already_running",
+          "name": "test_scheduler_already_running",
+          "description": "Check behavior when the scheduler is already running before start is called.",
+          "type": "negative",
+          "test_setup": {
+            "given": "Scheduler is already running.",
+            "when": "start() is called.",
+            "then": "No exception is raised, and the scheduler continues running as expected."
+          },
+          "implementation_id": "scheduler_start"
+        },
+        {
+          "id": "scheduler_start_fetch_energy_data_failure_and_retry",
+          "name": "test_fetch_energy_data_failure_and_retry",
+          "description": "Verify that fetch_energy_data is retried up to 3 times on failure and errors are logged.",
+          "type": "negative",
+          "test_setup": {
+            "given": "fetch_energy_data is mocked to fail (raise exception) on each call.",
+            "when": "start() is called and the scheduled job runs.",
+            "then": "fetch_energy_data is retried 3 times, and errors are logged each time."
+          },
+          "implementation_id": "scheduler_start"
+        },
+        {
+          "id": "scheduler_start_fetch_energy_data_success",
+          "name": "test_fetch_energy_data_successful_run",
+          "description": "Ensure that fetch_energy_data runs successfully and stores timestamped energy data in the database.",
+          "type": "positive",
+          "test_setup": {
+            "given": "fetch_energy_data is mocked to succeed and return valid data in Mega watt hour units.",
+            "when": "start() is called and the scheduled job runs.",
+            "then": "Energy data is stored in the database with a timestamp."
+          },
+          "implementation_id": "scheduler_start"
+        },
+        {
+          "id": "scheduler_start_invalid_energy_unit",
+          "name": "test_invalid_energy_unit_rejected",
+          "description": "Ensure that only data in Mega watt hour units is accepted and other units are rejected.",
+          "type": "negative",
+          "test_setup": {
+            "given": "fetch_energy_data returns data with units other than Mega watt hour.",
+            "when": "start() is called and the scheduled job runs.",
+            "then": "Data is not stored in the database, and an error is logged."
+          },
+          "implementation_id": "scheduler_start"
+        },
+        {
+          "id": "scheduler_start_external_endpoint_unreachable",
+          "name": "test_external_endpoint_unreachable",
+          "description": "Test behavior when the external endpoint is unreachable (e.g., network error).",
+          "type": "negative",
+          "test_setup": {
+            "given": "fetch_energy_data is configured to fetch from an unreachable endpoint.",
+            "when": "start() is called and the scheduled job runs.",
+            "then": "fetch_energy_data is retried up to 3 times, and errors are logged."
+          },
+          "implementation_id": "scheduler_start"
+        },
+        {
+          "id": "scheduler_start_logging_on_error",
+          "name": "test_logging_on_error",
+          "description": "Verify that errors during fetch_energy_data execution are logged using standard logging.",
+          "type": "positive",
+          "test_setup": {
+            "given": "fetch_energy_data is mocked to raise an exception.",
+            "when": "start() is called and the scheduled job runs.",
+            "then": "An error is logged using the standard logging module."
+          },
+          "implementation_id": "scheduler_start"
+        },
+        {
+          "id": "scheduler_start_configurable_endpoint",
+          "name": "test_configurable_external_endpoint",
+          "description": "Ensure that fetch_energy_data uses the configured external endpoint.",
+          "type": "positive",
+          "test_setup": {
+            "given": "The external endpoint configuration is changed.",
+            "when": "start() is called and the scheduled job runs.",
+            "then": "fetch_energy_data fetches data from the new configured endpoint."
+          },
+          "implementation_id": "scheduler_start"
+        },
+        {
+          "id": "scheduler_start_database_write_failure",
+          "name": "test_database_write_failure",
+          "description": "Test behavior when storing energy data in the database fails.",
+          "type": "negative",
+          "test_setup": {
+            "given": "Database is mocked to raise an exception on write.",
+            "when": "start() is called and the scheduled job runs.",
+            "then": "An error is logged, and the job does not crash the scheduler."
+          },
+          "implementation_id": "scheduler_start"
+        }
+      ]
+    },
+    {
+      "implementation_id": "scheduler_fetch_energy_data",
+      "test_cases": [
+        {
+          "id": "fetch_energy_data_success_first_attempt",
+          "name": "test_successful_data_fetch_first_attempt",
+          "description": "Verifies that energy data is fetched, logged, and stored successfully on the first attempt with no errors.",
+          "type": "positive",
+          "test_setup": {
+            "given": "Database is available, random value generation succeeds, and no exceptions are raised.",
+            "when": "fetch_energy_data() is called.",
+            "then": "A new EnergyData record is created with the generated value and current timestamp, a 'Data saved' log is emitted, and the function completes without retries."
+          },
+          "implementation_id": "scheduler_fetch_energy_data"
+        },
+        {
+          "id": "fetch_energy_data_success_after_retry",
+          "name": "test_successful_data_fetch_after_retry",
+          "description": "Ensures that if the first attempt fails, the function retries and succeeds on a subsequent attempt, logging the error and success appropriately.",
+          "type": "positive",
+          "test_setup": {
+            "given": "First attempt raises an exception (e.g., simulated endpoint failure), second attempt succeeds.",
+            "when": "fetch_energy_data() is called.",
+            "then": "An error log is emitted for the first attempt, a new EnergyData record is created on the second attempt, and a 'Data saved' log is emitted."
+          },
+          "implementation_id": "scheduler_fetch_energy_data"
+        },
+        {
+          "id": "fetch_energy_data_all_retries_fail",
+          "name": "test_all_retries_fail",
+          "description": "Verifies that if all attempts fail, the function logs each error and emits a 'Max retries reached. Data fetch failed.' message.",
+          "type": "negative",
+          "test_setup": {
+            "given": "All three attempts raise exceptions (e.g., endpoint and/or DB failures).",
+            "when": "fetch_energy_data() is called.",
+            "then": "Three error logs are emitted (one per attempt), and a final log indicates max retries reached and data fetch failure. No EnergyData is stored."
+          },
+          "implementation_id": "scheduler_fetch_energy_data"
+        },
+        {
+          "id": "fetch_energy_data_db_commit_failure",
+          "name": "test_db_commit_failure",
+          "description": "Checks that if the database commit fails, the function logs the error, retries, and closes the session properly.",
+          "type": "negative",
+          "test_setup": {
+            "given": "Random value generation succeeds, but DB commit raises an exception.",
+            "when": "fetch_energy_data() is called.",
+            "then": "An error log is emitted for the failed commit, the session is closed, and the function retries up to max_retries."
+          },
+          "implementation_id": "scheduler_fetch_energy_data"
+        },
+        {
+          "id": "fetch_energy_data_logs_and_session_cleanup",
+          "name": "test_logs_and_session_cleanup",
+          "description": "Ensures that the database session is always closed, even if an exception occurs during data storage.",
+          "type": "positive",
+          "test_setup": {
+            "given": "An exception is raised after opening the DB session (e.g., during object creation or commit).",
+            "when": "fetch_energy_data() is called.",
+            "then": "The session's close method is called in the finally block for each attempt."
+          },
+          "implementation_id": "scheduler_fetch_energy_data"
+        },
+        {
+          "id": "fetch_energy_data_unit_validation",
+          "name": "test_energy_data_unit_validation",
+          "description": "Verifies that only energy data in Mega watt hour units is accepted and stored.",
+          "type": "positive",
+          "test_setup": {
+            "given": "Generated energy value is in Mega watt hour units.",
+            "when": "fetch_energy_data() is called.",
+            "then": "EnergyData is stored with the correct unit. If a different unit is generated, it is rejected and not stored."
+          },
+          "implementation_id": "scheduler_fetch_energy_data"
+        },
+        {
+          "id": "fetch_energy_data_invalid_energy_value",
+          "name": "test_invalid_energy_value",
+          "description": "Checks that invalid or out-of-range energy values are handled gracefully and not stored.",
+          "type": "negative",
+          "test_setup": {
+            "given": "Random value generation produces an invalid value (e.g., negative or None).",
+            "when": "fetch_energy_data() is called.",
+            "then": "An error is logged, the value is not stored, and the function retries as per logic."
+          },
+          "implementation_id": "scheduler_fetch_energy_data"
+        },
+        {
+          "id": "fetch_energy_data_logging_on_start",
+          "name": "test_logging_on_start",
+          "description": "Ensures that the function logs the start of the fetch operation.",
+          "type": "positive",
+          "test_setup": {
+            "given": "No special preconditions.",
+            "when": "fetch_energy_data() is called.",
+            "then": "A log entry 'Fetching energy data...' is emitted at the start of the function."
+          },
+          "implementation_id": "scheduler_fetch_energy_data"
+        },
+        {
+          "id": "fetch_energy_data_timestamp_accuracy",
+          "name": "test_timestamp_accuracy",
+          "description": "Verifies that the stored EnergyData record has a timestamp within an acceptable range of the function call time.",
+          "type": "positive",
+          "test_setup": {
+            "given": "Function executes successfully.",
+            "when": "fetch_energy_data() is called.",
+            "then": "The timestamp on the stored record is within a few seconds of the system time at function invocation."
+          },
+          "implementation_id": "scheduler_fetch_energy_data"
+        },
+        {
+          "id": "fetch_energy_data_db_session_exception",
+          "name": "test_db_session_exception",
+          "description": "Ensures that if opening the DB session itself fails, the function logs the error and retries as expected.",
+          "type": "negative",
+          "test_setup": {
+            "given": "DB session creation raises an exception.",
+            "when": "fetch_energy_data() is called.",
+            "then": "An error is logged for each failed attempt, and the function retries up to max_retries."
+          },
+          "implementation_id": "scheduler_fetch_energy_data"
+        }
+      ]
+    }
+  ],
+  "component": [],
+  "endpoint": []
+}
