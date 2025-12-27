@@ -15,7 +15,7 @@ Testing codevalid workflow
 - Fetch energy generation data from the provided endpoint **every 1 minute**.  
 - Store timestamped energy data in the database.  
 - Retry failed requests automatically and log errors.  
-
+- validate and accept only if the energy data is in Mega watt hour units
 ### 2.2 User Onboarding
 - Users can **register** with basic information.  
 - During onboarding, users must submit:  
