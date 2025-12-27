@@ -2,32 +2,36 @@
   "energy_data_collection": {
     "implementation": [
       {
-        "id": "startup_event",
+        "id": "main_startup_event",
         "name": "startup_event",
         "file_path": "backend/app/main.py",
         "type": "function",
-        "How_is_it_connected_to_implementation": "This function is registered as a FastAPI startup event. It starts the scheduler, which is responsible for running the periodic energy data collection.",
+        "How_is_it_connected_to_implementation": "On FastAPI startup, this function starts the scheduler, which triggers periodic energy data collection.",
         "pseudo_code": "On application startup:\n    Log 'Starting scheduler...'\n    Call scheduler.start()"
       },
       {
-        "id": "scheduler.start",
+        "id": "scheduler_start",
         "name": "start",
         "file_path": "backend/app/services/scheduler.py",
         "type": "function",
-        "How_is_it_connected_to_implementation": "Called by the startup event, this function schedules the fetch_energy_data function to run every 1 minute using APScheduler.",
-        "pseudo_code": "Define start():\n    Schedule fetch_energy_data to run every 1 minute\n    Start the scheduler"
+        "How_is_it_connected_to_implementation": "Schedules fetch_energy_data to run every 1 minute using APScheduler.",
+        "pseudo_code": "Define start():\n    Add fetch_energy_data as a job to scheduler, interval=1 minute\n    Start the scheduler"
       },
       {
-        "id": "fetch_energy_data",
+        "id": "scheduler_fetch_energy_data",
         "name": "fetch_energy_data",
         "file_path": "backend/app/services/scheduler.py",
         "type": "function",
-        "How_is_it_connected_to_implementation": "This function is scheduled to run every minute. It fetches (mocked) energy data, stores it in the database, retries failed requests up to 3 times, and logs errors.",
-        "pseudo_code": "Define fetch_energy_data():\n    Log 'Fetching energy data...'\n    Set max_retries = 3\n    For attempt in 0 to max_retries-1:\n        Try:\n            generated = random value (mocked fetch)\n            Open database session\n            Try:\n                Create EnergyData with generated and current timestamp\n                Add to database\n                Commit\n                Log 'Data saved'\n                Break (success)\n            Finally:\n                Close database session\n        Except Exception as e:\n            Log error with attempt number\n            If last attempt:\n                Log 'Max retries reached. Data fetch failed.'"
+        "How_is_it_connected_to_implementation": "Implements the core logic for fetching (mocked), retrying, logging, and storing energy data in the database.",
+        "pseudo_code": "Define fetch_energy_data():\n    Log 'Fetching energy data...'\n    Set max_retries = 3\n    For attempt in 0 to max_retries-1:\n        Try:\n            generated = random value (mocked, should be fetched from endpoint)\n            Open DB session\n            Try:\n                Create EnergyData with generated_energy and current timestamp\n                Add to DB and commit\n                Log 'Data saved'\n                Break (success)\n            Finally:\n                Close DB session\n        Except Exception as e:\n            Log error with attempt number\n            If last attempt:\n                Log 'Max retries reached. Data fetch failed.'"
       }
     ],
     "missing_implementations": [
-      "Data must be fetched every 1 minute from an external endpoint configurable via environment variable."
+      "Data is not fetched from a configurable external endpoint via environment variable (currently mocked with random value).",
+      "No validation that only data in Mega watt hour units is accepted (currently no unit check, and logs say kWh).",
+      "No check for the unit in the fetched data before storing.",
+      "No actual HTTP request to an external endpoint.",
+      "No use of environment variable to configure the endpoint."
     ]
   },
   "user_onboarding": {
