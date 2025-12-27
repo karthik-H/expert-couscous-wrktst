@@ -11,7 +11,7 @@
         "Errors must be logged using standard logging.",
         "Only accept and store energy data if it is in Mega watt hour units."
       ],
-      "change_status": "updated"
+      "change_status": ""
     },
     {
       "id": "user_onboarding",
@@ -39,6 +39,6 @@
       "change_status": ""
     }
   ],
-  "last_updated": "2025-12-27T07:21:40.276436",
+  "last_updated": "2025-12-27T07:32:00.025198",
   "version": "1.0"
 }
