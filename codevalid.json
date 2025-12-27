@@ -3,14 +3,15 @@
     {
       "id": "energy_data_collection",
       "header": "Energy Data Collection",
-      "description": "Fetches energy generation data from a configurable external endpoint every 1 minute, stores timestamped energy data in the database, retries failed requests up to 3 times, and logs errors using standard logging.",
+      "description": "Fetches energy generation data from a configurable external endpoint every 1 minute, stores timestamped energy data in the database, retries failed requests up to 3 times, logs errors using standard logging, and validates that only data in Mega watt hour units is accepted.",
       "conditions": [
         "Data must be fetched every 1 minute from an external endpoint configurable via environment variable.",
         "Fetched data must be timestamped and stored in the database.",
         "Failed requests must be retried automatically up to 3 attempts.",
-        "Errors must be logged using standard logging."
+        "Errors must be logged using standard logging.",
+        "Only accept and store energy data if it is in Mega watt hour units."
       ],
-      "change_status": ""
+      "change_status": "updated"
     },
     {
       "id": "user_onboarding",
@@ -38,6 +39,6 @@
       "change_status": ""
     }
   ],
-  "last_updated": "2025-12-27T06:51:13.544940",
+  "last_updated": "2025-12-27T07:21:40.276436",
   "version": "1.0"
 }
