@@ -6,120 +6,120 @@
         {
           "id": "startup_event_scheduler_starts_successfully",
           "name": "test_scheduler_starts_on_startup",
-          "description": "Verify that the scheduler is started when the FastAPI application starts up.",
+          "description": "Verify that the scheduler is started when the application starts up.",
           "type": "positive",
           "test_setup": {
-            "given": "A FastAPI app with the startup_event registered and a mock scheduler.",
-            "when": "The application startup event is triggered.",
-            "then": "The scheduler.start() method is called exactly once."
-          },
-          "implementation_id": "main_startup_event"
-        },
-        {
-          "id": "startup_event_logs_starting_scheduler",
-          "name": "test_logs_starting_scheduler_message",
-          "description": "Ensure that the log message 'Starting scheduler...' is emitted on startup.",
-          "type": "positive",
-          "test_setup": {
-            "given": "A FastAPI app with logging configured and the startup_event registered.",
-            "when": "The application startup event is triggered.",
-            "then": "The log contains the message 'Starting scheduler...'."
+            "given": "The application is starting and the scheduler is properly configured.",
+            "when": "startup_event is called.",
+            "then": "The scheduler's start() method is called and 'Starting scheduler...' is logged."
           },
           "implementation_id": "main_startup_event"
         },
         {
           "id": "startup_event_scheduler_start_failure",
           "name": "test_scheduler_start_failure_logs_error",
-          "description": "Verify that if scheduler.start() raises an exception, the error is logged.",
+          "description": "Verify that if the scheduler fails to start, the error is logged.",
           "type": "negative",
           "test_setup": {
-            "given": "A FastAPI app with the startup_event registered and a mock scheduler that raises an exception on start.",
-            "when": "The application startup event is triggered.",
-            "then": "An error is logged indicating the failure to start the scheduler."
+            "given": "The scheduler's start() method raises an exception.",
+            "when": "startup_event is called.",
+            "then": "The exception is caught and an error is logged using standard logging."
           },
           "implementation_id": "main_startup_event"
         },
         {
           "id": "energy_data_collection_periodic_trigger",
           "name": "test_scheduler_triggers_periodic_collection",
-          "description": "Ensure the scheduler is configured to trigger energy data collection every 1 minute.",
+          "description": "Verify that the scheduler triggers energy data collection every 1 minute.",
           "type": "positive",
           "test_setup": {
-            "given": "A scheduler with the energy data collection job registered.",
-            "when": "The scheduler is started.",
-            "then": "The energy data collection job is scheduled to run every 1 minute."
+            "given": "The scheduler is running after startup.",
+            "when": "1 minute passes.",
+            "then": "The energy data collection task is triggered."
           },
           "implementation_id": "main_startup_event"
         },
         {
-          "id": "energy_data_collection_successful_fetch_and_store",
+          "id": "energy_data_collection_external_endpoint_success",
           "name": "test_energy_data_fetched_and_stored",
-          "description": "Verify that energy data is fetched from the external endpoint and stored in the database with a timestamp.",
+          "description": "Verify that energy data is fetched from the external endpoint and stored in the database.",
           "type": "positive",
           "test_setup": {
-            "given": "A mock external endpoint returning valid energy data in Mega watt hour units.",
-            "when": "The scheduled job runs.",
-            "then": "The data is stored in the database with the correct timestamp and unit."
+            "given": "The external endpoint returns valid energy data in Mega watt hour units.",
+            "when": "The scheduled task runs.",
+            "then": "The data is stored in the database with a timestamp."
           },
           "implementation_id": "main_startup_event"
         },
         {
-          "id": "energy_data_collection_retry_on_failure",
-          "name": "test_energy_data_collection_retries_on_failure",
-          "description": "Ensure that if the external endpoint fails, the system retries up to 3 times.",
+          "id": "energy_data_collection_external_endpoint_failure_and_retry",
+          "name": "test_external_endpoint_failure_retries",
+          "description": "Verify that failed requests to the external endpoint are retried up to 3 times.",
           "type": "negative",
           "test_setup": {
-            "given": "A mock external endpoint that fails (e.g., times out or returns 500).",
-            "when": "The scheduled job runs.",
+            "given": "The external endpoint is unavailable or returns an error.",
+            "when": "The scheduled task runs.",
             "then": "The system retries the request up to 3 times before logging an error."
           },
           "implementation_id": "main_startup_event"
         },
         {
-          "id": "energy_data_collection_logs_error_on_failure",
-          "name": "test_logs_error_on_failed_data_collection",
-          "description": "Verify that errors during data collection are logged using standard logging.",
+          "id": "energy_data_collection_invalid_unit_rejected",
+          "name": "test_invalid_unit_data_rejected",
+          "description": "Verify that energy data not in Mega watt hour units is rejected and not stored.",
           "type": "negative",
           "test_setup": {
-            "given": "A mock external endpoint that always fails.",
-            "when": "The scheduled job runs and all retries fail.",
-            "then": "An error is logged indicating the failure to collect energy data."
+            "given": "The external endpoint returns energy data in units other than Mega watt hour.",
+            "when": "The scheduled task runs.",
+            "then": "The data is not stored and an error is logged."
           },
           "implementation_id": "main_startup_event"
         },
         {
-          "id": "energy_data_collection_rejects_invalid_units",
-          "name": "test_rejects_non_megawatt_hour_units",
-          "description": "Ensure that only energy data in Mega watt hour units is accepted and stored.",
-          "type": "negative",
-          "test_setup": {
-            "given": "A mock external endpoint returning energy data in units other than Mega watt hour.",
-            "when": "The scheduled job runs.",
-            "then": "The data is not stored, and an error is logged about invalid units."
-          },
-          "implementation_id": "main_startup_event"
-        },
-        {
-          "id": "energy_data_collection_handles_empty_response",
-          "name": "test_handles_empty_external_response",
-          "description": "Verify that an empty response from the external endpoint is handled gracefully.",
-          "type": "negative",
-          "test_setup": {
-            "given": "A mock external endpoint returning an empty response.",
-            "when": "The scheduled job runs.",
-            "then": "No data is stored, and an error is logged about the empty response."
-          },
-          "implementation_id": "main_startup_event"
-        },
-        {
-          "id": "energy_data_collection_handles_partial_failure",
-          "name": "test_partial_failure_then_success",
-          "description": "Ensure that if the first request fails but a retry succeeds, data is stored and no error is logged.",
+          "id": "energy_data_collection_logging_on_success",
+          "name": "test_logging_on_successful_collection",
+          "description": "Verify that successful data collection and storage is logged.",
           "type": "positive",
           "test_setup": {
-            "given": "A mock external endpoint that fails on the first request but succeeds on the second.",
-            "when": "The scheduled job runs.",
-            "then": "The data is stored, and no error is logged."
+            "given": "The external endpoint returns valid data.",
+            "when": "The scheduled task runs and stores data.",
+            "then": "A success message is logged using standard logging."
+          },
+          "implementation_id": "main_startup_event"
+        },
+        {
+          "id": "energy_data_collection_logging_on_failure",
+          "name": "test_logging_on_failed_collection",
+          "description": "Verify that failures in data collection are logged as errors.",
+          "type": "negative",
+          "test_setup": {
+            "given": "The external endpoint fails or returns invalid data.",
+            "when": "The scheduled task runs.",
+            "then": "An error message is logged using standard logging."
+          },
+          "implementation_id": "main_startup_event"
+        },
+        {
+          "id": "energy_data_collection_database_write_failure",
+          "name": "test_database_write_failure_logs_error",
+          "description": "Verify that if storing data in the database fails, the error is logged.",
+          "type": "negative",
+          "test_setup": {
+            "given": "The database is unavailable or raises an exception during write.",
+            "when": "The scheduled task attempts to store data.",
+            "then": "An error is logged using standard logging."
+          },
+          "implementation_id": "main_startup_event"
+        },
+        {
+          "id": "energy_data_collection_boundary_time_precision",
+          "name": "test_timestamp_precision_on_storage",
+          "description": "Verify that the stored energy data includes a precise timestamp (to the second or better).",
+          "type": "positive",
+          "test_setup": {
+            "given": "Valid energy data is fetched.",
+            "when": "The data is stored in the database.",
+            "then": "The timestamp is stored with at least second-level precision."
           },
           "implementation_id": "main_startup_event"
         }
@@ -129,122 +129,122 @@
       "implementation_id": "scheduler_start",
       "test_cases": [
         {
-          "id": "scheduler_start_positive_job_added",
-          "name": "test_scheduler_starts_and_adds_job",
-          "description": "Verify that the start function adds fetch_energy_data as a job to the scheduler with a 1-minute interval and starts the scheduler.",
+          "id": "scheduler_start_positive_runs_every_minute",
+          "name": "test_scheduler_runs_every_minute",
+          "description": "Verify that the scheduler schedules fetch_energy_data to run every 1 minute.",
           "type": "positive",
           "test_setup": {
-            "given": "A mock or test instance of the scheduler and fetch_energy_data function.",
+            "given": "Scheduler is initialized and fetch_energy_data is available.",
             "when": "start() is called.",
-            "then": "fetch_energy_data is scheduled to run every 1 minute and the scheduler is started."
+            "then": "fetch_energy_data is scheduled to run every 1 minute."
           },
           "implementation_id": "scheduler_start"
         },
         {
-          "id": "scheduler_start_duplicate_job",
-          "name": "test_scheduler_duplicate_job_handling",
-          "description": "Ensure that calling start multiple times does not add duplicate jobs or raises an appropriate error.",
-          "type": "negative",
-          "test_setup": {
-            "given": "Scheduler already has fetch_energy_data scheduled.",
-            "when": "start() is called again.",
-            "then": "No duplicate job is added, or an error is logged/raised as per implementation."
-          },
-          "implementation_id": "scheduler_start"
-        },
-        {
-          "id": "scheduler_start_scheduler_already_running",
-          "name": "test_scheduler_already_running",
-          "description": "Check behavior when the scheduler is already running before start is called.",
-          "type": "negative",
-          "test_setup": {
-            "given": "Scheduler is already running.",
-            "when": "start() is called.",
-            "then": "No exception is raised, and the scheduler continues running as expected."
-          },
-          "implementation_id": "scheduler_start"
-        },
-        {
-          "id": "scheduler_start_fetch_energy_data_failure_and_retry",
-          "name": "test_fetch_energy_data_failure_and_retry",
-          "description": "Verify that fetch_energy_data is retried up to 3 times on failure and errors are logged.",
-          "type": "negative",
-          "test_setup": {
-            "given": "fetch_energy_data is mocked to fail (raise exception) on each call.",
-            "when": "start() is called and the scheduled job runs.",
-            "then": "fetch_energy_data is retried 3 times, and errors are logged each time."
-          },
-          "implementation_id": "scheduler_start"
-        },
-        {
-          "id": "scheduler_start_fetch_energy_data_success",
-          "name": "test_fetch_energy_data_successful_run",
-          "description": "Ensure that fetch_energy_data runs successfully and stores timestamped energy data in the database.",
+          "id": "scheduler_start_positive_scheduler_starts",
+          "name": "test_scheduler_starts",
+          "description": "Verify that the scheduler is started when start() is called.",
           "type": "positive",
           "test_setup": {
-            "given": "fetch_energy_data is mocked to succeed and return valid data in Mega watt hour units.",
-            "when": "start() is called and the scheduled job runs.",
-            "then": "Energy data is stored in the database with a timestamp."
+            "given": "Scheduler is initialized.",
+            "when": "start() is called.",
+            "then": "Scheduler is running and jobs are being executed."
           },
           "implementation_id": "scheduler_start"
         },
         {
-          "id": "scheduler_start_invalid_energy_unit",
-          "name": "test_invalid_energy_unit_rejected",
-          "description": "Ensure that only data in Mega watt hour units is accepted and other units are rejected.",
+          "id": "scheduler_start_negative_fetch_energy_data_failure_retries",
+          "name": "test_fetch_energy_data_retries_on_failure",
+          "description": "Verify that fetch_energy_data is retried up to 3 times if it fails.",
           "type": "negative",
           "test_setup": {
-            "given": "fetch_energy_data returns data with units other than Mega watt hour.",
+            "given": "fetch_energy_data raises an exception on execution.",
             "when": "start() is called and the scheduled job runs.",
-            "then": "Data is not stored in the database, and an error is logged."
+            "then": "fetch_energy_data is retried up to 3 times before giving up."
           },
           "implementation_id": "scheduler_start"
         },
         {
-          "id": "scheduler_start_external_endpoint_unreachable",
-          "name": "test_external_endpoint_unreachable",
-          "description": "Test behavior when the external endpoint is unreachable (e.g., network error).",
-          "type": "negative",
-          "test_setup": {
-            "given": "fetch_energy_data is configured to fetch from an unreachable endpoint.",
-            "when": "start() is called and the scheduled job runs.",
-            "then": "fetch_energy_data is retried up to 3 times, and errors are logged."
-          },
-          "implementation_id": "scheduler_start"
-        },
-        {
-          "id": "scheduler_start_logging_on_error",
-          "name": "test_logging_on_error",
+          "id": "scheduler_start_negative_logs_error_on_failure",
+          "name": "test_logs_error_on_fetch_failure",
           "description": "Verify that errors during fetch_energy_data execution are logged using standard logging.",
-          "type": "positive",
+          "type": "negative",
           "test_setup": {
-            "given": "fetch_energy_data is mocked to raise an exception.",
+            "given": "fetch_energy_data raises an exception.",
             "when": "start() is called and the scheduled job runs.",
             "then": "An error is logged using the standard logging module."
           },
           "implementation_id": "scheduler_start"
         },
         {
-          "id": "scheduler_start_configurable_endpoint",
-          "name": "test_configurable_external_endpoint",
-          "description": "Ensure that fetch_energy_data uses the configured external endpoint.",
-          "type": "positive",
+          "id": "scheduler_start_negative_invalid_unit_rejected",
+          "name": "test_invalid_unit_rejected",
+          "description": "Verify that only data in Mega watt hour units is accepted and others are rejected.",
+          "type": "negative",
           "test_setup": {
-            "given": "The external endpoint configuration is changed.",
+            "given": "fetch_energy_data returns data with units other than Mega watt hour.",
             "when": "start() is called and the scheduled job runs.",
-            "then": "fetch_energy_data fetches data from the new configured endpoint."
+            "then": "Data with invalid units is not stored in the database and an error is logged."
           },
           "implementation_id": "scheduler_start"
         },
         {
-          "id": "scheduler_start_database_write_failure",
-          "name": "test_database_write_failure",
-          "description": "Test behavior when storing energy data in the database fails.",
+          "id": "scheduler_start_positive_valid_data_stored",
+          "name": "test_valid_data_stored",
+          "description": "Verify that valid energy data in Mega watt hour units is stored in the database with a timestamp.",
+          "type": "positive",
+          "test_setup": {
+            "given": "fetch_energy_data returns valid data in Mega watt hour units.",
+            "when": "start() is called and the scheduled job runs.",
+            "then": "Data is stored in the database with the correct timestamp."
+          },
+          "implementation_id": "scheduler_start"
+        },
+        {
+          "id": "scheduler_start_negative_scheduler_already_running",
+          "name": "test_scheduler_already_running",
+          "description": "Verify that calling start() when the scheduler is already running does not cause errors or duplicate jobs.",
           "type": "negative",
           "test_setup": {
-            "given": "Database is mocked to raise an exception on write.",
+            "given": "Scheduler is already running.",
+            "when": "start() is called again.",
+            "then": "No duplicate jobs are scheduled and no errors are raised."
+          },
+          "implementation_id": "scheduler_start"
+        },
+        {
+          "id": "scheduler_start_negative_external_endpoint_unreachable",
+          "name": "test_external_endpoint_unreachable",
+          "description": "Verify behavior when the external endpoint is unreachable (e.g., network error).",
+          "type": "negative",
+          "test_setup": {
+            "given": "fetch_energy_data cannot reach the external endpoint.",
             "when": "start() is called and the scheduled job runs.",
-            "then": "An error is logged, and the job does not crash the scheduler."
+            "then": "fetch_energy_data is retried up to 3 times and an error is logged if all attempts fail."
+          },
+          "implementation_id": "scheduler_start"
+        },
+        {
+          "id": "scheduler_start_positive_scheduler_shutdown_and_restart",
+          "name": "test_scheduler_shutdown_and_restart",
+          "description": "Verify that the scheduler can be shut down and restarted without issues.",
+          "type": "positive",
+          "test_setup": {
+            "given": "Scheduler is running.",
+            "when": "Scheduler is shut down and start() is called again.",
+            "then": "Scheduler restarts and jobs are scheduled as expected."
+          },
+          "implementation_id": "scheduler_start"
+        },
+        {
+          "id": "scheduler_start_negative_database_write_failure",
+          "name": "test_database_write_failure",
+          "description": "Verify that database write failures during data storage are handled and logged.",
+          "type": "negative",
+          "test_setup": {
+            "given": "Database is unavailable or raises an exception during write.",
+            "when": "fetch_energy_data tries to store data.",
+            "then": "An error is logged and the scheduler continues running."
           },
           "implementation_id": "scheduler_start"
         }
@@ -374,8 +374,1987 @@
           "implementation_id": "scheduler_fetch_energy_data"
         }
       ]
+    },
+    {
+      "implementation_id": "fetch_energy_data",
+      "test_cases": [
+        {
+          "id": "fetch_success_first_attempt",
+          "name": "test_successful_fetch_on_first_attempt",
+          "description": "Verifies that energy data is fetched, logged, and stored successfully on the first attempt with no errors.",
+          "type": "positive",
+          "test_setup": {
+            "given": "Database is available and no exceptions are raised during fetch or save. Mocked fetch returns a valid Mega watt hour value.",
+            "when": "fetch_energy_data() is called",
+            "then": "EnergyData is created and committed to the DB, 'Data saved' is logged, and only one attempt is made."
+          },
+          "implementation_id": "fetch_energy_data"
+        },
+        {
+          "id": "fetch_success_second_attempt",
+          "name": "test_successful_fetch_on_second_attempt",
+          "description": "Verifies that if the first fetch attempt fails, the function retries and succeeds on the second attempt.",
+          "type": "positive",
+          "test_setup": {
+            "given": "First fetch attempt raises an exception, second attempt succeeds with a valid Mega watt hour value.",
+            "when": "fetch_energy_data() is called",
+            "then": "Error is logged for first attempt, EnergyData is created and committed on second attempt, 'Data saved' is logged, and two attempts are made."
+          },
+          "implementation_id": "fetch_energy_data"
+        },
+        {
+          "id": "fetch_success_third_attempt",
+          "name": "test_successful_fetch_on_third_attempt",
+          "description": "Verifies that if the first two fetch attempts fail, the function retries and succeeds on the third attempt.",
+          "type": "positive",
+          "test_setup": {
+            "given": "First and second fetch attempts raise exceptions, third attempt succeeds with a valid Mega watt hour value.",
+            "when": "fetch_energy_data() is called",
+            "then": "Errors are logged for first and second attempts, EnergyData is created and committed on third attempt, 'Data saved' is logged, and three attempts are made."
+          },
+          "implementation_id": "fetch_energy_data"
+        },
+        {
+          "id": "fetch_all_attempts_fail",
+          "name": "test_all_attempts_fail",
+          "description": "Verifies that if all three fetch attempts fail, the function logs errors and does not save any data.",
+          "type": "negative",
+          "test_setup": {
+            "given": "All three fetch attempts raise exceptions.",
+            "when": "fetch_energy_data() is called",
+            "then": "Errors are logged for all attempts, 'Max retries reached. Data fetch failed.' is logged, and no EnergyData is committed to the DB."
+          },
+          "implementation_id": "fetch_energy_data"
+        },
+        {
+          "id": "db_commit_failure",
+          "name": "test_db_commit_failure",
+          "description": "Verifies that if the database commit fails, the function logs the error and retries up to three times.",
+          "type": "negative",
+          "test_setup": {
+            "given": "Fetch returns valid data, but DB commit raises an exception for all three attempts.",
+            "when": "fetch_energy_data() is called",
+            "then": "Errors are logged for all attempts, 'Max retries reached. Data fetch failed.' is logged, and no EnergyData is committed."
+          },
+          "implementation_id": "fetch_energy_data"
+        },
+        {
+          "id": "invalid_unit_rejected",
+          "name": "test_invalid_unit_rejected",
+          "description": "Verifies that if fetched data is not in Mega watt hour units, it is not saved and an error is logged.",
+          "type": "negative",
+          "test_setup": {
+            "given": "Fetch returns data in an invalid unit (e.g., kWh or GWh) on all attempts.",
+            "when": "fetch_energy_data() is called",
+            "then": "Error is logged for invalid unit, no EnergyData is committed, and function retries up to three times."
+          },
+          "implementation_id": "fetch_energy_data"
+        },
+        {
+          "id": "logging_on_each_attempt",
+          "name": "test_logging_on_each_attempt",
+          "description": "Verifies that the function logs the correct messages for each attempt, including errors and success.",
+          "type": "positive",
+          "test_setup": {
+            "given": "First attempt fails, second attempt succeeds.",
+            "when": "fetch_energy_data() is called",
+            "then": "'Fetching energy data...' is logged once, error is logged for first attempt, 'Data saved' is logged on success."
+          },
+          "implementation_id": "fetch_energy_data"
+        },
+        {
+          "id": "edge_case_zero_value",
+          "name": "test_zero_value_energy_data",
+          "description": "Verifies that a fetched energy value of zero (0.0 MWh) is accepted and stored.",
+          "type": "positive",
+          "test_setup": {
+            "given": "Fetch returns 0.0 Mega watt hour value.",
+            "when": "fetch_energy_data() is called",
+            "then": "EnergyData with value 0.0 is committed to the DB, and 'Data saved' is logged."
+          },
+          "implementation_id": "fetch_energy_data"
+        },
+        {
+          "id": "edge_case_large_value",
+          "name": "test_large_value_energy_data",
+          "description": "Verifies that a very large but valid Mega watt hour value is accepted and stored.",
+          "type": "positive",
+          "test_setup": {
+            "given": "Fetch returns a large Mega watt hour value (e.g., 1e9).",
+            "when": "fetch_energy_data() is called",
+            "then": "EnergyData with large value is committed to the DB, and 'Data saved' is logged."
+          },
+          "implementation_id": "fetch_energy_data"
+        },
+        {
+          "id": "edge_case_timestamp_accuracy",
+          "name": "test_timestamp_accuracy",
+          "description": "Verifies that the stored EnergyData has a timestamp close to the function call time.",
+          "type": "positive",
+          "test_setup": {
+            "given": "Fetch returns a valid Mega watt hour value.",
+            "when": "fetch_energy_data() is called",
+            "then": "EnergyData is committed with a timestamp within a reasonable delta (e.g., 1 second) of the function invocation."
+          },
+          "implementation_id": "fetch_energy_data"
+        }
+      ]
+    },
+    {
+      "implementation_id": "frontend_api_client",
+      "test_cases": [
+        {
+          "id": "api_adds_auth_header_with_token",
+          "name": "adds_authorization_header_when_token_present",
+          "description": "Ensures the axios instance adds the Authorization header with the token from localStorage for outgoing requests.",
+          "type": "positive",
+          "test_setup": {
+            "given": "A valid token is present in localStorage under the expected key.",
+            "when": "A request is made using the api instance.",
+            "then": "The outgoing request contains the Authorization header with the correct Bearer token."
+          },
+          "implementation_id": "frontend_api_client"
+        },
+        {
+          "id": "api_no_auth_header_without_token",
+          "name": "does_not_add_authorization_header_when_no_token",
+          "description": "Ensures the axios instance does not add the Authorization header if no token is present in localStorage.",
+          "type": "positive",
+          "test_setup": {
+            "given": "No token is present in localStorage.",
+            "when": "A request is made using the api instance.",
+            "then": "The outgoing request does not contain the Authorization header."
+          },
+          "implementation_id": "frontend_api_client"
+        },
+        {
+          "id": "api_handles_empty_token",
+          "name": "does_not_add_authorization_header_when_token_empty",
+          "description": "Ensures the axios instance does not add the Authorization header if the token in localStorage is an empty string.",
+          "type": "negative",
+          "test_setup": {
+            "given": "An empty string is stored as the token in localStorage.",
+            "when": "A request is made using the api instance.",
+            "then": "The outgoing request does not contain the Authorization header."
+          },
+          "implementation_id": "frontend_api_client"
+        },
+        {
+          "id": "api_handles_malformed_token",
+          "name": "does_not_add_authorization_header_when_token_malformed",
+          "description": "Ensures the axios instance does not add the Authorization header if the token in localStorage is malformed (e.g., not a string).",
+          "type": "negative",
+          "test_setup": {
+            "given": "A malformed value (e.g., object or number) is stored as the token in localStorage.",
+            "when": "A request is made using the api instance.",
+            "then": "The outgoing request does not contain the Authorization header."
+          },
+          "implementation_id": "frontend_api_client"
+        },
+        {
+          "id": "api_base_url_configured",
+          "name": "uses_configured_base_url",
+          "description": "Ensures the axios instance uses the configured baseURL for all requests.",
+          "type": "positive",
+          "test_setup": {
+            "given": "The api instance is created with a specific baseURL.",
+            "when": "A request is made using a relative path.",
+            "then": "The request is sent to the correct full URL (baseURL + path)."
+          },
+          "implementation_id": "frontend_api_client"
+        },
+        {
+          "id": "api_interceptor_error_handling",
+          "name": "handles_interceptor_errors_gracefully",
+          "description": "Ensures that if the interceptor throws an error (e.g., localStorage is inaccessible), the error is handled gracefully and does not crash the app.",
+          "type": "negative",
+          "test_setup": {
+            "given": "localStorage access throws an exception (e.g., in private browsing mode).",
+            "when": "A request is made using the api instance.",
+            "then": "The error is caught, and the request proceeds without the Authorization header."
+          },
+          "implementation_id": "frontend_api_client"
+        },
+        {
+          "id": "api_multiple_requests_token_change",
+          "name": "updates_authorization_header_on_token_change",
+          "description": "Ensures that if the token in localStorage changes between requests, the Authorization header is updated accordingly.",
+          "type": "positive",
+          "test_setup": {
+            "given": "A token is present in localStorage, a request is made, then the token is changed, and another request is made.",
+            "when": "Two requests are made using the api instance.",
+            "then": "Each request uses the current token value from localStorage in the Authorization header."
+          },
+          "implementation_id": "frontend_api_client"
+        },
+        {
+          "id": "api_handles_missing_localstorage",
+          "name": "handles_missing_localstorage_gracefully",
+          "description": "Ensures the axios instance does not throw if localStorage is undefined (e.g., in a non-browser environment).",
+          "type": "negative",
+          "test_setup": {
+            "given": "localStorage is undefined or not available in the environment.",
+            "when": "A request is made using the api instance.",
+            "then": "No error is thrown, and the request proceeds without the Authorization header."
+          },
+          "implementation_id": "frontend_api_client"
+        },
+        {
+          "id": "api_exported_instance",
+          "name": "exports_singleton_api_instance",
+          "description": "Ensures the exported api instance is a singleton and can be imported and used across the application.",
+          "type": "positive",
+          "test_setup": {
+            "given": "The api instance is imported in multiple modules.",
+            "when": "Requests are made from different modules.",
+            "then": "The same axios instance is used, sharing interceptors and configuration."
+          },
+          "implementation_id": "frontend_api_client"
+        }
+      ]
+    },
+    {
+      "implementation_id": "backend_energy_model",
+      "test_cases": [
+        {
+          "id": "create_valid_energy_data",
+          "name": "Create EnergyData with valid fields",
+          "description": "Verify that an EnergyData record can be created with valid timestamp, generated_energy, and user_id.",
+          "type": "positive",
+          "test_setup": {
+            "given": "A valid User exists in the database.",
+            "when": "An EnergyData record is created with a valid timestamp, generated_energy, and user_id referencing the User.",
+            "then": "The record is saved successfully and can be retrieved with correct values."
+          },
+          "implementation_id": "backend_energy_model"
+        },
+        {
+          "id": "create_energy_data_without_user",
+          "name": "Create EnergyData without user_id",
+          "description": "Verify that an EnergyData record can be created without specifying user_id (nullable field).",
+          "type": "positive",
+          "test_setup": {
+            "given": "No user_id is provided.",
+            "when": "An EnergyData record is created with only timestamp and generated_energy.",
+            "then": "The record is saved successfully with user_id as null."
+          },
+          "implementation_id": "backend_energy_model"
+        },
+        {
+          "id": "default_timestamp",
+          "name": "EnergyData timestamp defaults to now",
+          "description": "Verify that the timestamp field defaults to the current UTC time if not provided.",
+          "type": "positive",
+          "test_setup": {
+            "given": "No timestamp is provided.",
+            "when": "An EnergyData record is created.",
+            "then": "The timestamp is set to the current UTC time."
+          },
+          "implementation_id": "backend_energy_model"
+        },
+        {
+          "id": "negative_generated_energy",
+          "name": "Create EnergyData with negative generated_energy",
+          "description": "Verify that an EnergyData record can be created with a negative generated_energy value (if allowed by business logic).",
+          "type": "negative",
+          "test_setup": {
+            "given": "A valid User exists.",
+            "when": "An EnergyData record is created with generated_energy set to a negative value.",
+            "then": "The record is saved if negative values are allowed, or an error is raised if not."
+          },
+          "implementation_id": "backend_energy_model"
+        },
+        {
+          "id": "null_generated_energy",
+          "name": "Create EnergyData with null generated_energy",
+          "description": "Verify that creating an EnergyData record with generated_energy as null fails (since it's not nullable).",
+          "type": "negative",
+          "test_setup": {
+            "given": "A valid User exists.",
+            "when": "An EnergyData record is created with generated_energy set to null.",
+            "then": "An integrity error is raised due to non-nullable constraint."
+          },
+          "implementation_id": "backend_energy_model"
+        },
+        {
+          "id": "invalid_user_id",
+          "name": "Create EnergyData with invalid user_id",
+          "description": "Verify that creating an EnergyData record with a user_id that does not exist in the users table fails.",
+          "type": "negative",
+          "test_setup": {
+            "given": "No User exists with the given user_id.",
+            "when": "An EnergyData record is created with user_id set to a non-existent value.",
+            "then": "A foreign key constraint error is raised."
+          },
+          "implementation_id": "backend_energy_model"
+        },
+        {
+          "id": "retrieve_energy_data_by_user",
+          "name": "Retrieve EnergyData records for a user",
+          "description": "Verify that all EnergyData records for a specific user can be retrieved via the relationship.",
+          "type": "positive",
+          "test_setup": {
+            "given": "Multiple EnergyData records exist for a User.",
+            "when": "The User's energy_data relationship is accessed.",
+            "then": "All related EnergyData records are returned."
+          },
+          "implementation_id": "backend_energy_model"
+        },
+        {
+          "id": "energy_data_owner_relationship",
+          "name": "EnergyData owner relationship returns User",
+          "description": "Verify that the owner relationship on EnergyData returns the correct User instance.",
+          "type": "positive",
+          "test_setup": {
+            "given": "An EnergyData record exists with a valid user_id.",
+            "when": "The owner attribute is accessed.",
+            "then": "The corresponding User instance is returned."
+          },
+          "implementation_id": "backend_energy_model"
+        },
+        {
+          "id": "energy_data_id_autoincrement",
+          "name": "EnergyData id auto-increments",
+          "description": "Verify that the id field auto-increments for each new EnergyData record.",
+          "type": "positive",
+          "test_setup": {
+            "given": "Multiple EnergyData records are created.",
+            "when": "Each record is saved.",
+            "then": "Each record has a unique, incremented id."
+          },
+          "implementation_id": "backend_energy_model"
+        },
+        {
+          "id": "energy_data_large_float",
+          "name": "Create EnergyData with large generated_energy value",
+          "description": "Verify that EnergyData can store very large float values for generated_energy.",
+          "type": "positive",
+          "test_setup": {
+            "given": "A valid User exists.",
+            "when": "An EnergyData record is created with a very large float value for generated_energy.",
+            "then": "The record is saved and the value is stored accurately."
+          },
+          "implementation_id": "backend_energy_model"
+        },
+        {
+          "id": "energy_data_zero_float",
+          "name": "Create EnergyData with zero generated_energy",
+          "description": "Verify that EnergyData can store zero as a valid generated_energy value.",
+          "type": "positive",
+          "test_setup": {
+            "given": "A valid User exists.",
+            "when": "An EnergyData record is created with generated_energy set to 0.0.",
+            "then": "The record is saved and the value is stored as 0.0."
+          },
+          "implementation_id": "backend_energy_model"
+        },
+        {
+          "id": "energy_data_future_timestamp",
+          "name": "Create EnergyData with future timestamp",
+          "description": "Verify that EnergyData can store a timestamp in the future.",
+          "type": "positive",
+          "test_setup": {
+            "given": "A valid User exists.",
+            "when": "An EnergyData record is created with a timestamp set to a future date.",
+            "then": "The record is saved and the timestamp is stored accurately."
+          },
+          "implementation_id": "backend_energy_model"
+        },
+        {
+          "id": "energy_data_past_timestamp",
+          "name": "Create EnergyData with past timestamp",
+          "description": "Verify that EnergyData can store a timestamp in the past.",
+          "type": "positive",
+          "test_setup": {
+            "given": "A valid User exists.",
+            "when": "An EnergyData record is created with a timestamp set to a past date.",
+            "then": "The record is saved and the timestamp is stored accurately."
+          },
+          "implementation_id": "backend_energy_model"
+        },
+        {
+          "id": "energy_data_string_generated_energy",
+          "name": "Create EnergyData with string as generated_energy",
+          "description": "Verify that creating an EnergyData record with a string value for generated_energy fails.",
+          "type": "negative",
+          "test_setup": {
+            "given": "A valid User exists.",
+            "when": "An EnergyData record is created with generated_energy set to a string value.",
+            "then": "A type error or integrity error is raised."
+          },
+          "implementation_id": "backend_energy_model"
+        }
+      ]
+    },
+    {
+      "implementation_id": "backend_energy_schema",
+      "test_cases": [
+        {
+          "id": "energydata_valid_full_input",
+          "name": "test_valid_energydata_full_input",
+          "description": "Test EnergyData schema with all fields provided and valid types.",
+          "type": "positive",
+          "test_setup": {
+            "given": "id=1, timestamp=datetime(2023, 1, 1, 12, 0), generated_energy=123.45, user_id=10",
+            "when": "EnergyData is instantiated with all fields",
+            "then": "Instance is created successfully with correct values"
+          },
+          "implementation_id": "backend_energy_schema"
+        },
+        {
+          "id": "energydata_valid_without_userid",
+          "name": "test_valid_energydata_without_userid",
+          "description": "Test EnergyData schema with user_id omitted (should default to None).",
+          "type": "positive",
+          "test_setup": {
+            "given": "id=2, timestamp=datetime(2023, 1, 2, 13, 0), generated_energy=67.89",
+            "when": "EnergyData is instantiated without user_id",
+            "then": "Instance is created successfully with user_id=None"
+          },
+          "implementation_id": "backend_energy_schema"
+        },
+        {
+          "id": "energydata_id_as_string",
+          "name": "test_energydata_id_as_string",
+          "description": "Test EnergyData schema with id as a string (should fail type validation).",
+          "type": "negative",
+          "test_setup": {
+            "given": "id='abc', timestamp=datetime(2023, 1, 1, 12, 0), generated_energy=123.45, user_id=10",
+            "when": "EnergyData is instantiated",
+            "then": "ValidationError is raised for id type"
+          },
+          "implementation_id": "backend_energy_schema"
+        },
+        {
+          "id": "energydata_missing_id",
+          "name": "test_energydata_missing_id",
+          "description": "Test EnergyData schema with missing id field (should fail validation).",
+          "type": "negative",
+          "test_setup": {
+            "given": "timestamp=datetime(2023, 1, 1, 12, 0), generated_energy=123.45, user_id=10",
+            "when": "EnergyData is instantiated",
+            "then": "ValidationError is raised for missing id"
+          },
+          "implementation_id": "backend_energy_schema"
+        },
+        {
+          "id": "energydata_generated_energy_as_string",
+          "name": "test_energydata_generated_energy_as_string",
+          "description": "Test EnergyData schema with generated_energy as a string (should fail type validation).",
+          "type": "negative",
+          "test_setup": {
+            "given": "id=3, timestamp=datetime(2023, 1, 3, 14, 0), generated_energy='high', user_id=11",
+            "when": "EnergyData is instantiated",
+            "then": "ValidationError is raised for generated_energy type"
+          },
+          "implementation_id": "backend_energy_schema"
+        },
+        {
+          "id": "energydata_timestamp_as_string",
+          "name": "test_energydata_timestamp_as_string",
+          "description": "Test EnergyData schema with timestamp as ISO string (should parse successfully).",
+          "type": "positive",
+          "test_setup": {
+            "given": "id=4, timestamp='2023-01-04T15:00:00', generated_energy=200.0, user_id=12",
+            "when": "EnergyData is instantiated",
+            "then": "Instance is created successfully with parsed datetime"
+          },
+          "implementation_id": "backend_energy_schema"
+        },
+        {
+          "id": "energydata_timestamp_invalid_format",
+          "name": "test_energydata_timestamp_invalid_format",
+          "description": "Test EnergyData schema with timestamp as an invalid string (should fail validation).",
+          "type": "negative",
+          "test_setup": {
+            "given": "id=5, timestamp='not-a-date', generated_energy=50.0, user_id=13",
+            "when": "EnergyData is instantiated",
+            "then": "ValidationError is raised for timestamp format"
+          },
+          "implementation_id": "backend_energy_schema"
+        },
+        {
+          "id": "energydata_userid_none",
+          "name": "test_energydata_userid_none",
+          "description": "Test EnergyData schema with user_id explicitly set to None.",
+          "type": "positive",
+          "test_setup": {
+            "given": "id=6, timestamp=datetime(2023, 1, 5, 16, 0), generated_energy=0.0, user_id=None",
+            "when": "EnergyData is instantiated",
+            "then": "Instance is created successfully with user_id=None"
+          },
+          "implementation_id": "backend_energy_schema"
+        },
+        {
+          "id": "energydata_generated_energy_zero",
+          "name": "test_energydata_generated_energy_zero",
+          "description": "Test EnergyData schema with generated_energy set to zero (boundary condition).",
+          "type": "positive",
+          "test_setup": {
+            "given": "id=7, timestamp=datetime(2023, 1, 6, 17, 0), generated_energy=0.0, user_id=14",
+            "when": "EnergyData is instantiated",
+            "then": "Instance is created successfully with generated_energy=0.0"
+          },
+          "implementation_id": "backend_energy_schema"
+        },
+        {
+          "id": "energydata_generated_energy_negative",
+          "name": "test_energydata_generated_energy_negative",
+          "description": "Test EnergyData schema with generated_energy as a negative value (should allow if not restricted).",
+          "type": "positive",
+          "test_setup": {
+            "given": "id=8, timestamp=datetime(2023, 1, 7, 18, 0), generated_energy=-10.5, user_id=15",
+            "when": "EnergyData is instantiated",
+            "then": "Instance is created successfully with generated_energy=-10.5"
+          },
+          "implementation_id": "backend_energy_schema"
+        },
+        {
+          "id": "energydata_extra_field",
+          "name": "test_energydata_extra_field",
+          "description": "Test EnergyData schema with an extra field (should ignore or raise error based on config).",
+          "type": "negative",
+          "test_setup": {
+            "given": "id=9, timestamp=datetime(2023, 1, 8, 19, 0), generated_energy=99.9, user_id=16, extra_field='extra'",
+            "when": "EnergyData is instantiated",
+            "then": "ValidationError is raised for extra fields (unless allow_extra is set)"
+          },
+          "implementation_id": "backend_energy_schema"
+        },
+        {
+          "id": "energydata_id_boundary",
+          "name": "test_energydata_id_boundary",
+          "description": "Test EnergyData schema with id at boundary value (e.g., 0).",
+          "type": "positive",
+          "test_setup": {
+            "given": "id=0, timestamp=datetime(2023, 1, 9, 20, 0), generated_energy=1.0, user_id=17",
+            "when": "EnergyData is instantiated",
+            "then": "Instance is created successfully with id=0"
+          },
+          "implementation_id": "backend_energy_schema"
+        }
+      ]
     }
   ],
-  "component": [],
-  "endpoint": []
+  "component": [
+    {
+      "implementation_id": "frontend_onboarding_component",
+      "test_cases": [
+        {
+          "id": "onboarding_render_form",
+          "name": "renders_form_elements",
+          "description": "Ensures the Onboarding component renders all required form elements: energy source picture input, supporting document input, submit button, and skip button.",
+          "type": "positive",
+          "test_setup": {
+            "given": "Component is mounted with default state",
+            "when": "Component renders",
+            "then": "All form elements are present in the DOM"
+          },
+          "implementation_id": "frontend_onboarding_component"
+        },
+        {
+          "id": "onboarding_upload_valid_files",
+          "name": "submit_with_valid_files",
+          "description": "Tests successful submission when valid image and PDF files are selected and uploaded.",
+          "type": "positive",
+          "test_setup": {
+            "given": "User selects a valid image file for energy source and a valid PDF for supporting document",
+            "when": "User clicks the submit button",
+            "then": "Files are appended to FormData, POST request is sent, success message is shown, and user is redirected to dashboard"
+          },
+          "implementation_id": "frontend_onboarding_component"
+        },
+        {
+          "id": "onboarding_upload_only_picture",
+          "name": "submit_with_only_picture",
+          "description": "Tests submission when only the energy source picture is provided.",
+          "type": "positive",
+          "test_setup": {
+            "given": "User selects a valid image file for energy source and leaves supporting document empty",
+            "when": "User clicks the submit button",
+            "then": "Only the picture is appended to FormData, POST request is sent, success message is shown, and user is redirected to dashboard"
+          },
+          "implementation_id": "frontend_onboarding_component"
+        },
+        {
+          "id": "onboarding_upload_only_document",
+          "name": "submit_with_only_document",
+          "description": "Tests submission when only the supporting document is provided.",
+          "type": "positive",
+          "test_setup": {
+            "given": "User selects a valid PDF/image for supporting document and leaves energy source picture empty",
+            "when": "User clicks the submit button",
+            "then": "Only the document is appended to FormData, POST request is sent, success message is shown, and user is redirected to dashboard"
+          },
+          "implementation_id": "frontend_onboarding_component"
+        },
+        {
+          "id": "onboarding_skip_upload",
+          "name": "skip_upload",
+          "description": "Tests the skip logic, ensuring users can proceed without uploading any files.",
+          "type": "positive",
+          "test_setup": {
+            "given": "No files are selected",
+            "when": "User clicks the skip button",
+            "then": "POST request is sent with no files, success message is shown, and user is redirected to dashboard"
+          },
+          "implementation_id": "frontend_onboarding_component"
+        },
+        {
+          "id": "onboarding_upload_invalid_picture_type",
+          "name": "submit_with_invalid_picture_type",
+          "description": "Tests validation for an invalid file type for the energy source picture input.",
+          "type": "negative",
+          "test_setup": {
+            "given": "User selects a non-image file (e.g., .txt) for energy source picture",
+            "when": "User clicks the submit button",
+            "then": "Validation error is displayed, no POST request is sent"
+          },
+          "implementation_id": "frontend_onboarding_component"
+        },
+        {
+          "id": "onboarding_upload_invalid_document_type",
+          "name": "submit_with_invalid_document_type",
+          "description": "Tests validation for an invalid file type for the supporting document input.",
+          "type": "negative",
+          "test_setup": {
+            "given": "User selects a non-image/non-PDF file (e.g., .exe) for supporting document",
+            "when": "User clicks the submit button",
+            "then": "Validation error is displayed, no POST request is sent"
+          },
+          "implementation_id": "frontend_onboarding_component"
+        },
+        {
+          "id": "onboarding_upload_picture_too_large",
+          "name": "submit_with_picture_too_large",
+          "description": "Tests validation for an energy source picture file exceeding the 5MB size limit.",
+          "type": "negative",
+          "test_setup": {
+            "given": "User selects an image file larger than 5MB for energy source picture",
+            "when": "User clicks the submit button",
+            "then": "Validation error is displayed, no POST request is sent"
+          },
+          "implementation_id": "frontend_onboarding_component"
+        },
+        {
+          "id": "onboarding_upload_document_too_large",
+          "name": "submit_with_document_too_large",
+          "description": "Tests validation for a supporting document file exceeding the 5MB size limit.",
+          "type": "negative",
+          "test_setup": {
+            "given": "User selects a PDF/image file larger than 5MB for supporting document",
+            "when": "User clicks the submit button",
+            "then": "Validation error is displayed, no POST request is sent"
+          },
+          "implementation_id": "frontend_onboarding_component"
+        },
+        {
+          "id": "onboarding_submit_network_error",
+          "name": "submit_network_error",
+          "description": "Tests error handling when the upload POST request fails due to a network/server error.",
+          "type": "negative",
+          "test_setup": {
+            "given": "User selects valid files",
+            "when": "User clicks the submit button and the server responds with an error",
+            "then": "Error message is displayed, user is not redirected"
+          },
+          "implementation_id": "frontend_onboarding_component"
+        },
+        {
+          "id": "onboarding_skip_network_error",
+          "name": "skip_network_error",
+          "description": "Tests error handling when the skip POST request fails due to a network/server error.",
+          "type": "negative",
+          "test_setup": {
+            "given": "No files are selected",
+            "when": "User clicks the skip button and the server responds with an error",
+            "then": "Error message is displayed, user is not redirected"
+          },
+          "implementation_id": "frontend_onboarding_component"
+        },
+        {
+          "id": "onboarding_submit_multiple_times",
+          "name": "submit_multiple_times",
+          "description": "Tests that multiple rapid submissions are handled gracefully (e.g., disables button, prevents duplicate requests).",
+          "type": "negative",
+          "test_setup": {
+            "given": "User selects valid files",
+            "when": "User clicks the submit button multiple times quickly",
+            "then": "Only one POST request is sent, UI prevents duplicate submissions"
+          },
+          "implementation_id": "frontend_onboarding_component"
+        },
+        {
+          "id": "onboarding_skip_multiple_times",
+          "name": "skip_multiple_times",
+          "description": "Tests that multiple rapid skips are handled gracefully (e.g., disables button, prevents duplicate requests).",
+          "type": "negative",
+          "test_setup": {
+            "given": "No files are selected",
+            "when": "User clicks the skip button multiple times quickly",
+            "then": "Only one POST request is sent, UI prevents duplicate skips"
+          },
+          "implementation_id": "frontend_onboarding_component"
+        },
+        {
+          "id": "onboarding_file_input_reset",
+          "name": "file_input_reset_after_submit",
+          "description": "Ensures file input fields are reset after a successful submission.",
+          "type": "positive",
+          "test_setup": {
+            "given": "User selects valid files and submits successfully",
+            "when": "Submission completes and user is redirected",
+            "then": "File input fields are cleared/reset"
+          },
+          "implementation_id": "frontend_onboarding_component"
+        },
+        {
+          "id": "onboarding_dashboard_link_present",
+          "name": "dashboard_link_present",
+          "description": "Ensures a link to the dashboard (home page) is present and functional during onboarding.",
+          "type": "positive",
+          "test_setup": {
+            "given": "Component is rendered",
+            "when": "User views the onboarding form",
+            "then": "A link to the dashboard is visible and navigates to the dashboard when clicked"
+          },
+          "implementation_id": "frontend_onboarding_component"
+        }
+      ]
+    },
+    {
+      "implementation_id": "frontend_register_component",
+      "test_cases": [
+        {
+          "id": "register_form_render",
+          "name": "Render Registration Form",
+          "description": "Verify that the registration form renders all required fields and buttons.",
+          "type": "positive",
+          "test_setup": {
+            "given": "Register component is mounted",
+            "when": "Component is rendered",
+            "then": "Full Name, Email, Password inputs and Submit button are visible"
+          },
+          "implementation_id": "frontend_register_component"
+        },
+        {
+          "id": "register_successful_submission",
+          "name": "Successful Registration Submission",
+          "description": "Test successful registration with valid data and redirection to login.",
+          "type": "positive",
+          "test_setup": {
+            "given": "Register component is mounted",
+            "when": "User enters valid Full Name, Email, Password and submits the form",
+            "then": "POST request is sent to /auth/register, on success user is redirected to login"
+          },
+          "implementation_id": "frontend_register_component"
+        },
+        {
+          "id": "register_empty_fields",
+          "name": "Submission with Empty Fields",
+          "description": "Test form validation when required fields are empty.",
+          "type": "negative",
+          "test_setup": {
+            "given": "Register component is mounted",
+            "when": "User submits the form with one or more empty fields",
+            "then": "Form displays validation errors and does not submit"
+          },
+          "implementation_id": "frontend_register_component"
+        },
+        {
+          "id": "register_invalid_email",
+          "name": "Submission with Invalid Email",
+          "description": "Test form validation for invalid email format.",
+          "type": "negative",
+          "test_setup": {
+            "given": "Register component is mounted",
+            "when": "User enters invalid email and submits the form",
+            "then": "Form displays email validation error and does not submit"
+          },
+          "implementation_id": "frontend_register_component"
+        },
+        {
+          "id": "register_short_password",
+          "name": "Submission with Short Password",
+          "description": "Test form validation for password length requirements.",
+          "type": "negative",
+          "test_setup": {
+            "given": "Register component is mounted",
+            "when": "User enters a password shorter than required length and submits",
+            "then": "Form displays password validation error and does not submit"
+          },
+          "implementation_id": "frontend_register_component"
+        },
+        {
+          "id": "register_duplicate_email",
+          "name": "Submission with Duplicate Email",
+          "description": "Test error handling when registering with an email that already exists.",
+          "type": "negative",
+          "test_setup": {
+            "given": "Register component is mounted",
+            "when": "User enters an email already registered and submits",
+            "then": "API returns error, error message is displayed, no redirect occurs"
+          },
+          "implementation_id": "frontend_register_component"
+        },
+        {
+          "id": "register_network_error",
+          "name": "Network/API Error Handling",
+          "description": "Test error handling when the registration API call fails due to network or server error.",
+          "type": "negative",
+          "test_setup": {
+            "given": "Register component is mounted",
+            "when": "User submits valid data but API returns a network/server error",
+            "then": "Error message is displayed, no redirect occurs"
+          },
+          "implementation_id": "frontend_register_component"
+        },
+        {
+          "id": "register_password_visibility_toggle",
+          "name": "Password Visibility Toggle",
+          "description": "Test if the password input can toggle visibility (if feature exists).",
+          "type": "positive",
+          "test_setup": {
+            "given": "Register component is mounted",
+            "when": "User clicks the password visibility toggle",
+            "then": "Password input type toggles between 'password' and 'text'"
+          },
+          "implementation_id": "frontend_register_component"
+        },
+        {
+          "id": "register_dashboard_link_present",
+          "name": "Dashboard Link Present",
+          "description": "Verify that a link to the dashboard (home page) is present during onboarding.",
+          "type": "positive",
+          "test_setup": {
+            "given": "Register component is mounted",
+            "when": "Component is rendered",
+            "then": "A link to the dashboard is visible and accessible"
+          },
+          "implementation_id": "frontend_register_component"
+        },
+        {
+          "id": "register_dashboard_link_navigation",
+          "name": "Dashboard Link Navigation",
+          "description": "Test navigation to dashboard via the provided link during onboarding.",
+          "type": "positive",
+          "test_setup": {
+            "given": "Register component is mounted",
+            "when": "User clicks the dashboard link",
+            "then": "User is navigated to the dashboard page"
+          },
+          "implementation_id": "frontend_register_component"
+        },
+        {
+          "id": "register_file_upload_valid_image",
+          "name": "Upload Valid Image File",
+          "description": "Test uploading a valid image file as supporting document.",
+          "type": "positive",
+          "test_setup": {
+            "given": "Register component is mounted",
+            "when": "User uploads a valid image file (<=5MB, image/*)",
+            "then": "File is accepted and prepared for submission"
+          },
+          "implementation_id": "frontend_register_component"
+        },
+        {
+          "id": "register_file_upload_valid_pdf",
+          "name": "Upload Valid PDF File",
+          "description": "Test uploading a valid PDF file as supporting document.",
+          "type": "positive",
+          "test_setup": {
+            "given": "Register component is mounted",
+            "when": "User uploads a valid PDF file (<=5MB, application/pdf)",
+            "then": "File is accepted and prepared for submission"
+          },
+          "implementation_id": "frontend_register_component"
+        },
+        {
+          "id": "register_file_upload_invalid_type",
+          "name": "Upload Invalid File Type",
+          "description": "Test validation for unsupported file types during upload.",
+          "type": "negative",
+          "test_setup": {
+            "given": "Register component is mounted",
+            "when": "User uploads a file with unsupported type (e.g., .exe, .txt)",
+            "then": "File is rejected and error message is displayed"
+          },
+          "implementation_id": "frontend_register_component"
+        },
+        {
+          "id": "register_file_upload_too_large",
+          "name": "Upload File Exceeding Size Limit",
+          "description": "Test validation for file uploads exceeding the 5MB size limit.",
+          "type": "negative",
+          "test_setup": {
+            "given": "Register component is mounted",
+            "when": "User uploads a file larger than 5MB",
+            "then": "File is rejected and error message is displayed"
+          },
+          "implementation_id": "frontend_register_component"
+        },
+        {
+          "id": "register_skip_file_upload",
+          "name": "Skip File Upload and Access Dashboard",
+          "description": "Test that user can skip uploading documents and still access the dashboard.",
+          "type": "positive",
+          "test_setup": {
+            "given": "Register component is mounted",
+            "when": "User completes registration and clicks dashboard link without uploading files",
+            "then": "User is navigated to dashboard and has access"
+          },
+          "implementation_id": "frontend_register_component"
+        },
+        {
+          "id": "register_multiple_file_uploads",
+          "name": "Upload Multiple Valid Files",
+          "description": "Test uploading both an image and a PDF as supporting documents.",
+          "type": "positive",
+          "test_setup": {
+            "given": "Register component is mounted",
+            "when": "User uploads a valid image and a valid PDF file",
+            "then": "Both files are accepted and prepared for submission"
+          },
+          "implementation_id": "frontend_register_component"
+        },
+        {
+          "id": "register_form_reset_on_success",
+          "name": "Form Reset After Successful Registration",
+          "description": "Test that the form is reset after a successful registration.",
+          "type": "positive",
+          "test_setup": {
+            "given": "Register component is mounted and user submits valid data",
+            "when": "Registration is successful",
+            "then": "Form fields are cleared/reset"
+          },
+          "implementation_id": "frontend_register_component"
+        },
+        {
+          "id": "register_loading_state",
+          "name": "Loading State During Submission",
+          "description": "Test that a loading indicator is shown while the registration request is in progress.",
+          "type": "positive",
+          "test_setup": {
+            "given": "Register component is mounted",
+            "when": "User submits the form and API request is pending",
+            "then": "Loading indicator is displayed and submit button is disabled"
+          },
+          "implementation_id": "frontend_register_component"
+        }
+      ]
+    },
+    {
+      "implementation_id": "frontend_dashboard_component",
+      "test_cases": [
+        {
+          "id": "dashboard_initial_fetch_success",
+          "name": "Initial Data Fetch Success",
+          "description": "Verifies that on mount, the Dashboard fetches current and historical energy data and renders them correctly.",
+          "type": "positive",
+          "test_setup": {
+            "given": "Dashboard component is mounted; API endpoints return valid data.",
+            "when": "Component mounts.",
+            "then": "fetchData is called, /energy/current and /energy/history are fetched, currentEnergy is displayed, and history is rendered as a line chart."
+          },
+          "implementation_id": "frontend_dashboard_component"
+        },
+        {
+          "id": "dashboard_periodic_fetch",
+          "name": "Periodic Data Fetch Every 60 Seconds",
+          "description": "Ensures fetchData is called every 60 seconds after mount and updates the UI accordingly.",
+          "type": "positive",
+          "test_setup": {
+            "given": "Dashboard is mounted and API endpoints return valid data.",
+            "when": "60 seconds pass.",
+            "then": "fetchData is called again, and the UI updates with the latest currentEnergy and history data."
+          },
+          "implementation_id": "frontend_dashboard_component"
+        },
+        {
+          "id": "dashboard_current_energy_render",
+          "name": "Current Energy Value Render",
+          "description": "Checks that the current energy value is displayed in a large font as specified.",
+          "type": "positive",
+          "test_setup": {
+            "given": "currentEnergy is set in state.",
+            "when": "Component renders.",
+            "then": "The currentEnergy value is visible in a large font on the page."
+          },
+          "implementation_id": "frontend_dashboard_component"
+        },
+        {
+          "id": "dashboard_history_chart_render",
+          "name": "History Line Chart Render",
+          "description": "Verifies that the historical energy data is rendered as a line chart using recharts.",
+          "type": "positive",
+          "test_setup": {
+            "given": "history data is set in state.",
+            "when": "Component renders.",
+            "then": "A line chart is displayed showing the historical energy data."
+          },
+          "implementation_id": "frontend_dashboard_component"
+        },
+        {
+          "id": "dashboard_logout_button_render",
+          "name": "Logout Button Render",
+          "description": "Ensures the logout button is present and visible on the Dashboard.",
+          "type": "positive",
+          "test_setup": {
+            "given": "Dashboard is rendered.",
+            "when": "Component renders.",
+            "then": "A logout button is visible on the page."
+          },
+          "implementation_id": "frontend_dashboard_component"
+        },
+        {
+          "id": "dashboard_logout_button_click",
+          "name": "Logout Button Click",
+          "description": "Tests that clicking the logout button triggers the expected logout behavior (e.g., redirects to login or clears session).",
+          "type": "positive",
+          "test_setup": {
+            "given": "Dashboard is rendered and user is logged in.",
+            "when": "User clicks the logout button.",
+            "then": "User is logged out and redirected to the login page or session is cleared."
+          },
+          "implementation_id": "frontend_dashboard_component"
+        },
+        {
+          "id": "dashboard_fetch_current_energy_failure",
+          "name": "Current Energy Fetch Failure",
+          "description": "Checks error handling when the /energy/current API call fails.",
+          "type": "negative",
+          "test_setup": {
+            "given": "API /energy/current returns an error (e.g., 500 or network error).",
+            "when": "fetchData is called.",
+            "then": "An error message is displayed or a fallback UI is shown for currentEnergy."
+          },
+          "implementation_id": "frontend_dashboard_component"
+        },
+        {
+          "id": "dashboard_fetch_history_failure",
+          "name": "History Fetch Failure",
+          "description": "Checks error handling when the /energy/history API call fails.",
+          "type": "negative",
+          "test_setup": {
+            "given": "API /energy/history returns an error (e.g., 500 or network error).",
+            "when": "fetchData is called.",
+            "then": "An error message is displayed or a fallback UI is shown for the history chart."
+          },
+          "implementation_id": "frontend_dashboard_component"
+        },
+        {
+          "id": "dashboard_empty_history_data",
+          "name": "Empty History Data",
+          "description": "Verifies the component handles empty history data gracefully.",
+          "type": "negative",
+          "test_setup": {
+            "given": "API /energy/history returns an empty array.",
+            "when": "fetchData is called.",
+            "then": "The history chart displays an empty state or a message indicating no historical data."
+          },
+          "implementation_id": "frontend_dashboard_component"
+        },
+        {
+          "id": "dashboard_invalid_current_energy_data",
+          "name": "Invalid Current Energy Data",
+          "description": "Tests the component's behavior when /energy/current returns invalid or malformed data.",
+          "type": "negative",
+          "test_setup": {
+            "given": "API /energy/current returns malformed data (e.g., missing value or wrong type).",
+            "when": "fetchData is called.",
+            "then": "An error message is displayed or the UI handles the invalid data gracefully."
+          },
+          "implementation_id": "frontend_dashboard_component"
+        },
+        {
+          "id": "dashboard_invalid_history_data",
+          "name": "Invalid History Data",
+          "description": "Tests the component's behavior when /energy/history returns invalid or malformed data.",
+          "type": "negative",
+          "test_setup": {
+            "given": "API /energy/history returns malformed data (e.g., not an array or missing fields).",
+            "when": "fetchData is called.",
+            "then": "An error message is displayed or the UI handles the invalid data gracefully."
+          },
+          "implementation_id": "frontend_dashboard_component"
+        },
+        {
+          "id": "dashboard_unmount_clears_interval",
+          "name": "Unmount Clears Interval",
+          "description": "Ensures that the periodic fetch interval is cleared when the component unmounts to prevent memory leaks.",
+          "type": "positive",
+          "test_setup": {
+            "given": "Dashboard is mounted and interval is running.",
+            "when": "Component unmounts.",
+            "then": "The interval for periodic fetch is cleared and no further fetchData calls are made."
+          },
+          "implementation_id": "frontend_dashboard_component"
+        },
+        {
+          "id": "dashboard_history_data_reversed",
+          "name": "History Data Is Reversed",
+          "description": "Checks that the history data is reversed before being rendered in the chart.",
+          "type": "positive",
+          "test_setup": {
+            "given": "API /energy/history returns data in chronological order.",
+            "when": "fetchData is called.",
+            "then": "The chart displays the data in reverse order (most recent first)."
+          },
+          "implementation_id": "frontend_dashboard_component"
+        },
+        {
+          "id": "dashboard_multiple_fetch_failures",
+          "name": "Multiple Fetch Failures",
+          "description": "Tests the component's behavior when both /energy/current and /energy/history fail simultaneously.",
+          "type": "negative",
+          "test_setup": {
+            "given": "Both API endpoints return errors.",
+            "when": "fetchData is called.",
+            "then": "Error messages or fallback UIs are shown for both currentEnergy and history chart."
+          },
+          "implementation_id": "frontend_dashboard_component"
+        },
+        {
+          "id": "dashboard_partial_data",
+          "name": "Partial Data Available",
+          "description": "Verifies the UI when one API call succeeds and the other fails.",
+          "type": "negative",
+          "test_setup": {
+            "given": "/energy/current succeeds, /energy/history fails (and vice versa).",
+            "when": "fetchData is called.",
+            "then": "The UI displays available data and shows an error or fallback for the failed part."
+          },
+          "implementation_id": "frontend_dashboard_component"
+        }
+      ]
+    }
+  ],
+  "endpoint": [
+    {
+      "implementation_id": "backend_onboarding_upload_endpoint",
+      "test_cases": [
+        {
+          "id": "submit_onboarding_success_all_files",
+          "name": "Successful onboarding with valid energy_pic and doc",
+          "description": "User submits valid image for energy_pic and valid PDF for doc, both under 5MB. User is marked as onboarded and files are stored.",
+          "type": "positive",
+          "request_method": "POST",
+          "request_url": "/api/onboarding/submit_onboarding",
+          "request_headers": {
+            "Content-Type": "multipart/form-data"
+          },
+          "request_body_json": "{\"energy_pic\": \"<valid_image_file>\", \"doc\": \"<valid_pdf_file>\", \"userid\": \"10\"}",
+          "response_status_code": 200,
+          "response_body_json": "{\"onboarding_complete\": true}",
+          "test_setup": {
+            "given": "User with id 10 exists and is not onboarded",
+            "when": "POST valid image and PDF files under 5MB",
+            "then": "Files are saved, user.is_onboarded is True, and onboarding_complete is returned"
+          },
+          "implementation_id": "backend_onboarding_upload_endpoint"
+        },
+        {
+          "id": "submit_onboarding_success_skip_uploads",
+          "name": "Successful onboarding with no files (skip uploads)",
+          "description": "User submits onboarding with no files (empty uploads). User is marked as onboarded and can access dashboard.",
+          "type": "positive",
+          "request_method": "POST",
+          "request_url": "/api/onboarding/submit_onboarding",
+          "request_headers": {
+            "Content-Type": "multipart/form-data"
+          },
+          "request_body_json": "{\"energy_pic\": null, \"doc\": null, \"userid\": \"11\"}",
+          "response_status_code": 200,
+          "response_body_json": "{\"onboarding_complete\": true}",
+          "test_setup": {
+            "given": "User with id 11 exists and is not onboarded",
+            "when": "POST with no files (fields omitted or null)",
+            "then": "User is marked as onboarded and can access dashboard"
+          },
+          "implementation_id": "backend_onboarding_upload_endpoint"
+        },
+        {
+          "id": "submit_onboarding_invalid_energy_pic_type",
+          "name": "Reject non-image energy_pic",
+          "description": "User submits a non-image file (e.g., PDF) as energy_pic. Endpoint rejects with error.",
+          "type": "negative",
+          "request_method": "POST",
+          "request_url": "/api/onboarding/submit_onboarding",
+          "request_headers": {
+            "Content-Type": "multipart/form-data"
+          },
+          "request_body_json": "{\"energy_pic\": \"<pdf_file>\", \"doc\": null, \"userid\": \"12\"}",
+          "response_status_code": 400,
+          "response_body_json": "{\"detail\": \"energy_pic must be an image\"}",
+          "test_setup": {
+            "given": "User with id 12 exists and is not onboarded",
+            "when": "POST with a PDF as energy_pic",
+            "then": "Error is returned, user is not onboarded"
+          },
+          "implementation_id": "backend_onboarding_upload_endpoint"
+        },
+        {
+          "id": "submit_onboarding_invalid_doc_type",
+          "name": "Reject invalid doc file type",
+          "description": "User submits a DOCX file as doc. Endpoint rejects with error.",
+          "type": "negative",
+          "request_method": "POST",
+          "request_url": "/api/onboarding/submit_onboarding",
+          "request_headers": {
+            "Content-Type": "multipart/form-data"
+          },
+          "request_body_json": "{\"energy_pic\": null, \"doc\": \"<docx_file>\", \"userid\": \"13\"}",
+          "response_status_code": 400,
+          "response_body_json": "{\"detail\": \"doc must be PDF or image/jpeg/png\"}",
+          "test_setup": {
+            "given": "User with id 13 exists and is not onboarded",
+            "when": "POST with a DOCX file as doc",
+            "then": "Error is returned, user is not onboarded"
+          },
+          "implementation_id": "backend_onboarding_upload_endpoint"
+        },
+        {
+          "id": "submit_onboarding_energy_pic_too_large",
+          "name": "Reject energy_pic over 5MB",
+          "description": "User submits an image file for energy_pic that exceeds 5MB. Endpoint rejects with error.",
+          "type": "negative",
+          "request_method": "POST",
+          "request_url": "/api/onboarding/submit_onboarding",
+          "request_headers": {
+            "Content-Type": "multipart/form-data"
+          },
+          "request_body_json": "{\"energy_pic\": \"<large_image_file>\", \"doc\": null, \"userid\": \"14\"}",
+          "response_status_code": 400,
+          "response_body_json": "{\"detail\": \"energy_pic file size exceeds 5MB\"}",
+          "test_setup": {
+            "given": "User with id 14 exists and is not onboarded",
+            "when": "POST with image file >5MB as energy_pic",
+            "then": "Error is returned, user is not onboarded"
+          },
+          "implementation_id": "backend_onboarding_upload_endpoint"
+        },
+        {
+          "id": "submit_onboarding_doc_too_large",
+          "name": "Reject doc over 5MB",
+          "description": "User submits a PDF file for doc that exceeds 5MB. Endpoint rejects with error.",
+          "type": "negative",
+          "request_method": "POST",
+          "request_url": "/api/onboarding/submit_onboarding",
+          "request_headers": {
+            "Content-Type": "multipart/form-data"
+          },
+          "request_body_json": "{\"energy_pic\": null, \"doc\": \"<large_pdf_file>\", \"userid\": \"15\"}",
+          "response_status_code": 400,
+          "response_body_json": "{\"detail\": \"doc file size exceeds 5MB\"}",
+          "test_setup": {
+            "given": "User with id 15 exists and is not onboarded",
+            "when": "POST with PDF file >5MB as doc",
+            "then": "Error is returned, user is not onboarded"
+          },
+          "implementation_id": "backend_onboarding_upload_endpoint"
+        },
+        {
+          "id": "submit_onboarding_energy_pic_boundary_size",
+          "name": "Accept energy_pic at 5MB boundary",
+          "description": "User submits an image file for energy_pic that is exactly 5MB. Endpoint accepts and processes the file.",
+          "type": "positive",
+          "request_method": "POST",
+          "request_url": "/api/onboarding/submit_onboarding",
+          "request_headers": {
+            "Content-Type": "multipart/form-data"
+          },
+          "request_body_json": "{\"energy_pic\": \"<5mb_image_file>\", \"doc\": null, \"userid\": \"16\"}",
+          "response_status_code": 200,
+          "response_body_json": "{\"onboarding_complete\": true}",
+          "test_setup": {
+            "given": "User with id 16 exists and is not onboarded",
+            "when": "POST with image file exactly 5MB as energy_pic",
+            "then": "File is accepted, user is onboarded"
+          },
+          "implementation_id": "backend_onboarding_upload_endpoint"
+        },
+        {
+          "id": "submit_onboarding_doc_boundary_size",
+          "name": "Accept doc at 5MB boundary",
+          "description": "User submits a PDF file for doc that is exactly 5MB. Endpoint accepts and processes the file.",
+          "type": "positive",
+          "request_method": "POST",
+          "request_url": "/api/onboarding/submit_onboarding",
+          "request_headers": {
+            "Content-Type": "multipart/form-data"
+          },
+          "request_body_json": "{\"energy_pic\": null, \"doc\": \"<5mb_pdf_file>\", \"userid\": \"17\"}",
+          "response_status_code": 200,
+          "response_body_json": "{\"onboarding_complete\": true}",
+          "test_setup": {
+            "given": "User with id 17 exists and is not onboarded",
+            "when": "POST with PDF file exactly 5MB as doc",
+            "then": "File is accepted, user is onboarded"
+          },
+          "implementation_id": "backend_onboarding_upload_endpoint"
+        },
+        {
+          "id": "submit_onboarding_missing_userid",
+          "name": "Reject missing userid",
+          "description": "User submits onboarding request without userid. Endpoint rejects with error.",
+          "type": "negative",
+          "request_method": "POST",
+          "request_url": "/api/onboarding/submit_onboarding",
+          "request_headers": {
+            "Content-Type": "multipart/form-data"
+          },
+          "request_body_json": "{\"energy_pic\": \"<valid_image_file>\", \"doc\": \"<valid_pdf_file>\"}",
+          "response_status_code": 400,
+          "response_body_json": "{\"detail\": \"userid is required\"}",
+          "test_setup": {
+            "given": "User exists",
+            "when": "POST without userid field",
+            "then": "Error is returned, onboarding not processed"
+          },
+          "implementation_id": "backend_onboarding_upload_endpoint"
+        },
+        {
+          "id": "submit_onboarding_invalid_userid",
+          "name": "Reject invalid userid",
+          "description": "User submits onboarding request with a non-existent userid. Endpoint rejects with error.",
+          "type": "negative",
+          "request_method": "POST",
+          "request_url": "/api/onboarding/submit_onboarding",
+          "request_headers": {
+            "Content-Type": "multipart/form-data"
+          },
+          "request_body_json": "{\"energy_pic\": \"<valid_image_file>\", \"doc\": \"<valid_pdf_file>\", \"userid\": \"99999\"}",
+          "response_status_code": 404,
+          "response_body_json": "{\"detail\": \"User not found\"}",
+          "test_setup": {
+            "given": "No user with id 99999 exists",
+            "when": "POST with non-existent userid",
+            "then": "Error is returned, onboarding not processed"
+          },
+          "implementation_id": "backend_onboarding_upload_endpoint"
+        },
+        {
+          "id": "submit_onboarding_partial_upload",
+          "name": "Successful onboarding with only energy_pic",
+          "description": "User submits only energy_pic (valid image under 5MB), skips doc. User is marked as onboarded.",
+          "type": "positive",
+          "request_method": "POST",
+          "request_url": "/api/onboarding/submit_onboarding",
+          "request_headers": {
+            "Content-Type": "multipart/form-data"
+          },
+          "request_body_json": "{\"energy_pic\": \"<valid_image_file>\", \"doc\": null, \"userid\": \"18\"}",
+          "response_status_code": 200,
+          "response_body_json": "{\"onboarding_complete\": true}",
+          "test_setup": {
+            "given": "User with id 18 exists and is not onboarded",
+            "when": "POST with only energy_pic",
+            "then": "User is onboarded, energy_pic is saved"
+          },
+          "implementation_id": "backend_onboarding_upload_endpoint"
+        },
+        {
+          "id": "submit_onboarding_partial_upload_doc",
+          "name": "Successful onboarding with only doc",
+          "description": "User submits only doc (valid PDF under 5MB), skips energy_pic. User is marked as onboarded.",
+          "type": "positive",
+          "request_method": "POST",
+          "request_url": "/api/onboarding/submit_onboarding",
+          "request_headers": {
+            "Content-Type": "multipart/form-data"
+          },
+          "request_body_json": "{\"energy_pic\": null, \"doc\": \"<valid_pdf_file>\", \"userid\": \"19\"}",
+          "response_status_code": 200,
+          "response_body_json": "{\"onboarding_complete\": true}",
+          "test_setup": {
+            "given": "User with id 19 exists and is not onboarded",
+            "when": "POST with only doc",
+            "then": "User is onboarded, doc is saved"
+          },
+          "implementation_id": "backend_onboarding_upload_endpoint"
+        },
+        {
+          "id": "submit_onboarding_invalid_energy_pic_extension",
+          "name": "Reject energy_pic with invalid extension",
+          "description": "User submits a file with a valid image content type but an invalid extension as energy_pic. Endpoint accepts based on content type, not extension.",
+          "type": "positive",
+          "request_method": "POST",
+          "request_url": "/api/onboarding/submit_onboarding",
+          "request_headers": {
+            "Content-Type": "multipart/form-data"
+          },
+          "request_body_json": "{\"energy_pic\": \"<image_content_type_but_txt_extension>\", \"doc\": null, \"userid\": \"20\"}",
+          "response_status_code": 200,
+          "response_body_json": "{\"onboarding_complete\": true}",
+          "test_setup": {
+            "given": "User with id 20 exists and is not onboarded",
+            "when": "POST with image content type but .txt extension",
+            "then": "File is accepted if content type is correct"
+          },
+          "implementation_id": "backend_onboarding_upload_endpoint"
+        },
+        {
+          "id": "submit_onboarding_dashboard_access_after_skip",
+          "name": "Dashboard access after skipping uploads",
+          "description": "User skips uploads and is redirected to dashboard. Access to dashboard is allowed.",
+          "type": "positive",
+          "request_method": "GET",
+          "request_url": "/dashboard",
+          "request_headers": {
+            "Content-Type": "application/json"
+          },
+          "request_body_json": "{}",
+          "response_status_code": 200,
+          "response_body_json": "{\"dashboard_access\": true}",
+          "test_setup": {
+            "given": "User completed onboarding with no files",
+            "when": "GET /dashboard",
+            "then": "Dashboard is accessible"
+          },
+          "implementation_id": "backend_onboarding_upload_endpoint"
+        }
+      ]
+    },
+    {
+      "implementation_id": "backend_register_endpoint",
+      "test_cases": [
+        {
+          "id": "register_positive_minimal",
+          "name": "Register with valid minimal data",
+          "description": "Registers a new user with valid name, email, and password. No files uploaded.",
+          "type": "positive",
+          "request_method": "POST",
+          "request_url": "/api/auth/register",
+          "request_headers": {
+            "Content-Type": "application/json"
+          },
+          "request_body_json": "{\"full_name\": \"Alice Smith\", \"email\": \"alice@example.com\", \"password\": \"StrongPass123!\"}",
+          "response_status_code": 201,
+          "response_body_json": "{\"id\": 1, \"full_name\": \"Alice Smith\", \"email\": \"alice@example.com\"}",
+          "test_setup": {
+            "given": "No user exists with email alice@example.com",
+            "when": "POST /api/auth/register with valid data",
+            "then": "User is created and returned in response"
+          },
+          "implementation_id": "backend_register_endpoint"
+        },
+        {
+          "id": "register_positive_with_files",
+          "name": "Register with valid data and file uploads",
+          "description": "Registers a new user with valid data and uploads a valid image and PDF file.",
+          "type": "positive",
+          "request_method": "POST",
+          "request_url": "/api/auth/register",
+          "request_headers": {
+            "Content-Type": "multipart/form-data"
+          },
+          "request_body_json": "{\"full_name\": \"Bob Lee\", \"email\": \"bob.lee@example.com\", \"password\": \"AnotherPass456!\", \"energy_source\": \"<image/jpeg file>\", \"supporting_doc\": \"<application/pdf file>\"}",
+          "response_status_code": 201,
+          "response_body_json": "{\"id\": 2, \"full_name\": \"Bob Lee\", \"email\": \"bob.lee@example.com\"}",
+          "test_setup": {
+            "given": "No user exists with email bob.lee@example.com",
+            "when": "POST /api/auth/register with valid data and files",
+            "then": "User is created, files are stored, and user is returned in response"
+          },
+          "implementation_id": "backend_register_endpoint"
+        },
+        {
+          "id": "register_positive_skip_upload",
+          "name": "Register and skip file upload",
+          "description": "Registers a new user and skips file upload, verifying dashboard access is allowed.",
+          "type": "positive",
+          "request_method": "POST",
+          "request_url": "/api/auth/register",
+          "request_headers": {
+            "Content-Type": "application/json"
+          },
+          "request_body_json": "{\"full_name\": \"Carol White\", \"email\": \"carol.white@example.com\", \"password\": \"SkipUpload789!\"}",
+          "response_status_code": 201,
+          "response_body_json": "{\"id\": 3, \"full_name\": \"Carol White\", \"email\": \"carol.white@example.com\", \"dashboard_link\": \"/dashboard\"}",
+          "test_setup": {
+            "given": "No user exists with email carol.white@example.com",
+            "when": "POST /api/auth/register with valid data and no files",
+            "then": "User is created and dashboard link is provided"
+          },
+          "implementation_id": "backend_register_endpoint"
+        },
+        {
+          "id": "register_negative_duplicate_email",
+          "name": "Register with duplicate email",
+          "description": "Attempts to register a user with an email that already exists.",
+          "type": "negative",
+          "request_method": "POST",
+          "request_url": "/api/auth/register",
+          "request_headers": {
+            "Content-Type": "application/json"
+          },
+          "request_body_json": "{\"full_name\": \"Alice Smith\", \"email\": \"alice@example.com\", \"password\": \"StrongPass123!\"}",
+          "response_status_code": 400,
+          "response_body_json": "{\"detail\": \"Email already registered\"}",
+          "test_setup": {
+            "given": "User with email alice@example.com already exists",
+            "when": "POST /api/auth/register with duplicate email",
+            "then": "Error is returned indicating duplicate email"
+          },
+          "implementation_id": "backend_register_endpoint"
+        },
+        {
+          "id": "register_negative_invalid_email",
+          "name": "Register with invalid email format",
+          "description": "Attempts to register with an invalid email address.",
+          "type": "negative",
+          "request_method": "POST",
+          "request_url": "/api/auth/register",
+          "request_headers": {
+            "Content-Type": "application/json"
+          },
+          "request_body_json": "{\"full_name\": \"Dave Brown\", \"email\": \"not-an-email\", \"password\": \"ValidPass123!\"}",
+          "response_status_code": 422,
+          "response_body_json": "{\"detail\": \"Invalid email format\"}",
+          "test_setup": {
+            "given": "No user exists with email not-an-email",
+            "when": "POST /api/auth/register with invalid email",
+            "then": "Validation error is returned"
+          },
+          "implementation_id": "backend_register_endpoint"
+        },
+        {
+          "id": "register_negative_weak_password",
+          "name": "Register with weak password",
+          "description": "Attempts to register with a password that does not meet strength requirements.",
+          "type": "negative",
+          "request_method": "POST",
+          "request_url": "/api/auth/register",
+          "request_headers": {
+            "Content-Type": "application/json"
+          },
+          "request_body_json": "{\"full_name\": \"Eve Black\", \"email\": \"eve.black@example.com\", \"password\": \"123\"}",
+          "response_status_code": 422,
+          "response_body_json": "{\"detail\": \"Password too weak\"}",
+          "test_setup": {
+            "given": "No user exists with email eve.black@example.com",
+            "when": "POST /api/auth/register with weak password",
+            "then": "Validation error is returned"
+          },
+          "implementation_id": "backend_register_endpoint"
+        },
+        {
+          "id": "register_negative_missing_fields",
+          "name": "Register with missing required fields",
+          "description": "Attempts to register with missing name, email, or password.",
+          "type": "negative",
+          "request_method": "POST",
+          "request_url": "/api/auth/register",
+          "request_headers": {
+            "Content-Type": "application/json"
+          },
+          "request_body_json": "{\"email\": \"missing.name@example.com\", \"password\": \"ValidPass123!\"}",
+          "response_status_code": 422,
+          "response_body_json": "{\"detail\": \"full_name is required\"}",
+          "test_setup": {
+            "given": "No user exists with email missing.name@example.com",
+            "when": "POST /api/auth/register with missing full_name",
+            "then": "Validation error is returned"
+          },
+          "implementation_id": "backend_register_endpoint"
+        },
+        {
+          "id": "register_negative_invalid_file_type",
+          "name": "Register with invalid file type upload",
+          "description": "Attempts to upload a file with an unsupported type (e.g., .exe file).",
+          "type": "negative",
+          "request_method": "POST",
+          "request_url": "/api/auth/register",
+          "request_headers": {
+            "Content-Type": "multipart/form-data"
+          },
+          "request_body_json": "{\"full_name\": \"Frank Green\", \"email\": \"frank.green@example.com\", \"password\": \"ValidPass123!\", \"energy_source\": \"<application/x-msdownload file>\"}",
+          "response_status_code": 415,
+          "response_body_json": "{\"detail\": \"Unsupported file type\"}",
+          "test_setup": {
+            "given": "No user exists with email frank.green@example.com",
+            "when": "POST /api/auth/register with invalid file type",
+            "then": "Error is returned indicating unsupported file type"
+          },
+          "implementation_id": "backend_register_endpoint"
+        },
+        {
+          "id": "register_negative_file_too_large",
+          "name": "Register with file exceeding size limit",
+          "description": "Attempts to upload a file larger than 5MB.",
+          "type": "negative",
+          "request_method": "POST",
+          "request_url": "/api/auth/register",
+          "request_headers": {
+            "Content-Type": "multipart/form-data"
+          },
+          "request_body_json": "{\"full_name\": \"Grace Hall\", \"email\": \"grace.hall@example.com\", \"password\": \"ValidPass123!\", \"supporting_doc\": \"<application/pdf file over 5MB>\"}",
+          "response_status_code": 413,
+          "response_body_json": "{\"detail\": \"File size exceeds 5MB limit\"}",
+          "test_setup": {
+            "given": "No user exists with email grace.hall@example.com",
+            "when": "POST /api/auth/register with oversized file",
+            "then": "Error is returned indicating file size limit exceeded"
+          },
+          "implementation_id": "backend_register_endpoint"
+        },
+        {
+          "id": "register_negative_invalid_method",
+          "name": "Register endpoint with invalid HTTP method",
+          "description": "Attempts to access the register endpoint with GET instead of POST.",
+          "type": "negative",
+          "request_method": "GET",
+          "request_url": "/api/auth/register",
+          "request_headers": {
+            "Content-Type": "application/json"
+          },
+          "request_body_json": "{}",
+          "response_status_code": 405,
+          "response_body_json": "{\"detail\": \"Method Not Allowed\"}",
+          "test_setup": {
+            "given": "No user exists with email test@example.com",
+            "when": "GET /api/auth/register",
+            "then": "Error is returned indicating method not allowed"
+          },
+          "implementation_id": "backend_register_endpoint"
+        },
+        {
+          "id": "register_positive_boundary_file_size",
+          "name": "Register with file exactly at 5MB limit",
+          "description": "Registers a new user and uploads a file exactly 5MB in size.",
+          "type": "positive",
+          "request_method": "POST",
+          "request_url": "/api/auth/register",
+          "request_headers": {
+            "Content-Type": "multipart/form-data"
+          },
+          "request_body_json": "{\"full_name\": \"Henry King\", \"email\": \"henry.king@example.com\", \"password\": \"ValidPass123!\", \"supporting_doc\": \"<application/pdf file exactly 5MB>\"}",
+          "response_status_code": 201,
+          "response_body_json": "{\"id\": 4, \"full_name\": \"Henry King\", \"email\": \"henry.king@example.com\"}",
+          "test_setup": {
+            "given": "No user exists with email henry.king@example.com",
+            "when": "POST /api/auth/register with 5MB file",
+            "then": "User is created and file is accepted"
+          },
+          "implementation_id": "backend_register_endpoint"
+        }
+      ]
+    },
+    {
+      "implementation_id": "backend_energy_current_endpoint",
+      "test_cases": [
+        {
+          "id": "get_current_energy_positive_latest_record",
+          "name": "get_current_energy_returns_latest_record",
+          "description": "Should return the latest energy data record for an onboarded user.",
+          "type": "positive",
+          "request_method": "GET",
+          "request_url": "/api/energy/current",
+          "request_headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer valid_token"
+          },
+          "request_body_json": "{}",
+          "response_status_code": 200,
+          "response_body_json": "{\"energy\": 123.45, \"timestamp\": \"2025-12-27T07:00:00Z\"}",
+          "test_setup": {
+            "given": "User is authenticated, onboarded, and has multiple EnergyData records.",
+            "when": "GET /api/energy/current is called.",
+            "then": "The response contains the latest EnergyData record (by timestamp desc) for the user."
+          },
+          "implementation_id": "backend_energy_current_endpoint"
+        },
+        {
+          "id": "get_current_energy_negative_not_onboarded",
+          "name": "get_current_energy_raises_403_if_not_onboarded",
+          "description": "Should return 403 Forbidden if the user is not onboarded.",
+          "type": "negative",
+          "request_method": "GET",
+          "request_url": "/api/energy/current",
+          "request_headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer valid_token"
+          },
+          "request_body_json": "{}",
+          "response_status_code": 403,
+          "response_body_json": "{\"detail\": \"User not onboarded\"}",
+          "test_setup": {
+            "given": "User is authenticated but not onboarded.",
+            "when": "GET /api/energy/current is called.",
+            "then": "The response is 403 Forbidden with appropriate error message."
+          },
+          "implementation_id": "backend_energy_current_endpoint"
+        },
+        {
+          "id": "get_current_energy_negative_no_records",
+          "name": "get_current_energy_raises_404_if_no_records",
+          "description": "Should return 404 Not Found if there are no EnergyData records for the user.",
+          "type": "negative",
+          "request_method": "GET",
+          "request_url": "/api/energy/current",
+          "request_headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer valid_token"
+          },
+          "request_body_json": "{}",
+          "response_status_code": 404,
+          "response_body_json": "{\"detail\": \"No energy data found\"}",
+          "test_setup": {
+            "given": "User is authenticated, onboarded, but has no EnergyData records.",
+            "when": "GET /api/energy/current is called.",
+            "then": "The response is 404 Not Found with appropriate error message."
+          },
+          "implementation_id": "backend_energy_current_endpoint"
+        },
+        {
+          "id": "get_current_energy_negative_unauthenticated",
+          "name": "get_current_energy_raises_401_if_unauthenticated",
+          "description": "Should return 401 Unauthorized if the request is made without authentication.",
+          "type": "negative",
+          "request_method": "GET",
+          "request_url": "/api/energy/current",
+          "request_headers": {
+            "Content-Type": "application/json"
+          },
+          "request_body_json": "{}",
+          "response_status_code": 401,
+          "response_body_json": "{\"detail\": \"Not authenticated\"}",
+          "test_setup": {
+            "given": "User is not authenticated.",
+            "when": "GET /api/energy/current is called.",
+            "then": "The response is 401 Unauthorized."
+          },
+          "implementation_id": "backend_energy_current_endpoint"
+        },
+        {
+          "id": "get_current_energy_negative_wrong_method",
+          "name": "get_current_energy_raises_405_on_post",
+          "description": "Should return 405 Method Not Allowed if a POST request is made to the endpoint.",
+          "type": "negative",
+          "request_method": "POST",
+          "request_url": "/api/energy/current",
+          "request_headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer valid_token"
+          },
+          "request_body_json": "{}",
+          "response_status_code": 405,
+          "response_body_json": "{\"detail\": \"Method Not Allowed\"}",
+          "test_setup": {
+            "given": "User is authenticated and onboarded.",
+            "when": "POST /api/energy/current is called.",
+            "then": "The response is 405 Method Not Allowed."
+          },
+          "implementation_id": "backend_energy_current_endpoint"
+        },
+        {
+          "id": "get_current_energy_positive_single_record",
+          "name": "get_current_energy_returns_single_record",
+          "description": "Should return the only energy data record if there is exactly one.",
+          "type": "positive",
+          "request_method": "GET",
+          "request_url": "/api/energy/current",
+          "request_headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer valid_token"
+          },
+          "request_body_json": "{}",
+          "response_status_code": 200,
+          "response_body_json": "{\"energy\": 50.0, \"timestamp\": \"2025-12-27T06:00:00Z\"}",
+          "test_setup": {
+            "given": "User is authenticated, onboarded, and has exactly one EnergyData record.",
+            "when": "GET /api/energy/current is called.",
+            "then": "The response contains the single EnergyData record."
+          },
+          "implementation_id": "backend_energy_current_endpoint"
+        },
+        {
+          "id": "get_current_energy_negative_invalid_token",
+          "name": "get_current_energy_raises_401_invalid_token",
+          "description": "Should return 401 Unauthorized if the token is invalid.",
+          "type": "negative",
+          "request_method": "GET",
+          "request_url": "/api/energy/current",
+          "request_headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer invalid_token"
+          },
+          "request_body_json": "{}",
+          "response_status_code": 401,
+          "response_body_json": "{\"detail\": \"Invalid authentication credentials\"}",
+          "test_setup": {
+            "given": "User provides an invalid authentication token.",
+            "when": "GET /api/energy/current is called.",
+            "then": "The response is 401 Unauthorized."
+          },
+          "implementation_id": "backend_energy_current_endpoint"
+        }
+      ]
+    },
+    {
+      "implementation_id": "backend_energy_history_endpoint",
+      "test_cases": [
+        {
+          "id": "get_energy_history_positive_default",
+          "name": "get_energy_history_returns_last_100_records_for_onboarded_user",
+          "description": "Verify that an onboarded user receives the last 100 energy history records in descending timestamp order.",
+          "type": "positive",
+          "request_method": "GET",
+          "request_url": "/api/energy/history",
+          "request_headers": {
+            "Content-Type": "application/json"
+          },
+          "request_body_json": "{}",
+          "response_status_code": 200,
+          "response_body_json": "{\"data\": [{\"timestamp\": \"2025-12-26T10:00:00Z\", \"energy\": 10.5}, {\"timestamp\": \"2025-12-26T09:00:00Z\", \"energy\": 9.8}]}",
+          "test_setup": {
+            "given": "User is authenticated and onboarded with more than 100 energy records in the database.",
+            "when": "GET request is made to /api/energy/history.",
+            "then": "Response contains the last 100 records ordered by timestamp descending."
+          },
+          "implementation_id": "backend_energy_history_endpoint"
+        },
+        {
+          "id": "get_energy_history_positive_less_than_100",
+          "name": "get_energy_history_returns_all_records_if_less_than_100",
+          "description": "Verify that if the user has less than 100 records, all available records are returned.",
+          "type": "positive",
+          "request_method": "GET",
+          "request_url": "/api/energy/history",
+          "request_headers": {
+            "Content-Type": "application/json"
+          },
+          "request_body_json": "{}",
+          "response_status_code": 200,
+          "response_body_json": "{\"data\": [{\"timestamp\": \"2025-12-26T10:00:00Z\", \"energy\": 10.5}]}",
+          "test_setup": {
+            "given": "User is authenticated and onboarded with only 1 energy record.",
+            "when": "GET request is made to /api/energy/history.",
+            "then": "Response contains all available records."
+          },
+          "implementation_id": "backend_energy_history_endpoint"
+        },
+        {
+          "id": "get_energy_history_negative_not_onboarded",
+          "name": "get_energy_history_fails_for_not_onboarded_user",
+          "description": "Verify that a user who is not onboarded receives a 403 Forbidden error.",
+          "type": "negative",
+          "request_method": "GET",
+          "request_url": "/api/energy/history",
+          "request_headers": {
+            "Content-Type": "application/json"
+          },
+          "request_body_json": "{}",
+          "response_status_code": 403,
+          "response_body_json": "{\"detail\": \"User not onboarded\"}",
+          "test_setup": {
+            "given": "User is authenticated but not onboarded.",
+            "when": "GET request is made to /api/energy/history.",
+            "then": "Response status is 403 with appropriate error message."
+          },
+          "implementation_id": "backend_energy_history_endpoint"
+        },
+        {
+          "id": "get_energy_history_negative_unauthenticated",
+          "name": "get_energy_history_fails_for_unauthenticated_user",
+          "description": "Verify that an unauthenticated user receives a 401 Unauthorized error.",
+          "type": "negative",
+          "request_method": "GET",
+          "request_url": "/api/energy/history",
+          "request_headers": {
+            "Content-Type": "application/json"
+          },
+          "request_body_json": "{}",
+          "response_status_code": 401,
+          "response_body_json": "{\"detail\": \"Not authenticated\"}",
+          "test_setup": {
+            "given": "User is not authenticated.",
+            "when": "GET request is made to /api/energy/history.",
+            "then": "Response status is 401 with appropriate error message."
+          },
+          "implementation_id": "backend_energy_history_endpoint"
+        },
+        {
+          "id": "get_energy_history_positive_empty",
+          "name": "get_energy_history_returns_empty_list_if_no_data",
+          "description": "Verify that if the user is onboarded but has no energy data, an empty list is returned.",
+          "type": "positive",
+          "request_method": "GET",
+          "request_url": "/api/energy/history",
+          "request_headers": {
+            "Content-Type": "application/json"
+          },
+          "request_body_json": "{}",
+          "response_status_code": 200,
+          "response_body_json": "{\"data\": []}",
+          "test_setup": {
+            "given": "User is authenticated, onboarded, but has no energy records.",
+            "when": "GET request is made to /api/energy/history.",
+            "then": "Response contains an empty data list."
+          },
+          "implementation_id": "backend_energy_history_endpoint"
+        },
+        {
+          "id": "get_energy_history_positive_custom_n",
+          "name": "get_energy_history_supports_custom_n_parameter",
+          "description": "Verify that the endpoint supports a custom N parameter to limit the number of records returned.",
+          "type": "positive",
+          "request_method": "GET",
+          "request_url": "/api/energy/history?limit=10",
+          "request_headers": {
+            "Content-Type": "application/json"
+          },
+          "request_body_json": "{}",
+          "response_status_code": 200,
+          "response_body_json": "{\"data\": [{\"timestamp\": \"2025-12-26T10:00:00Z\", \"energy\": 10.5}]}",
+          "test_setup": {
+            "given": "User is authenticated and onboarded with more than 10 energy records.",
+            "when": "GET request is made to /api/energy/history?limit=10.",
+            "then": "Response contains the last 10 records."
+          },
+          "implementation_id": "backend_energy_history_endpoint"
+        },
+        {
+          "id": "get_energy_history_negative_invalid_limit",
+          "name": "get_energy_history_invalid_limit_parameter",
+          "description": "Verify that providing an invalid limit parameter (e.g., negative number) returns a 400 Bad Request error.",
+          "type": "negative",
+          "request_method": "GET",
+          "request_url": "/api/energy/history?limit=-5",
+          "request_headers": {
+            "Content-Type": "application/json"
+          },
+          "request_body_json": "{}",
+          "response_status_code": 400,
+          "response_body_json": "{\"detail\": \"Invalid limit parameter\"}",
+          "test_setup": {
+            "given": "User is authenticated and onboarded.",
+            "when": "GET request is made to /api/energy/history?limit=-5.",
+            "then": "Response status is 400 with appropriate error message."
+          },
+          "implementation_id": "backend_energy_history_endpoint"
+        },
+        {
+          "id": "get_energy_history_negative_post_method",
+          "name": "get_energy_history_post_method_not_allowed",
+          "description": "Verify that using POST method on the endpoint returns a 405 Method Not Allowed error.",
+          "type": "negative",
+          "request_method": "POST",
+          "request_url": "/api/energy/history",
+          "request_headers": {
+            "Content-Type": "application/json"
+          },
+          "request_body_json": "{}",
+          "response_status_code": 405,
+          "response_body_json": "{\"detail\": \"Method Not Allowed\"}",
+          "test_setup": {
+            "given": "User is authenticated and onboarded.",
+            "when": "POST request is made to /api/energy/history.",
+            "then": "Response status is 405 with appropriate error message."
+          },
+          "implementation_id": "backend_energy_history_endpoint"
+        }
+      ]
+    }
+  ]
 }
