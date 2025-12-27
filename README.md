@@ -10,7 +10,7 @@ Testing codevalid workflow
 - **Others:** Cron or background task scheduler for periodic energy data fetching  
 
 ## 2. Functional Requirements
-
+ 
 ### 2.1 Energy Data Collection
 - Fetch energy generation data from the provided endpoint **every 1 minute**.  
 - Store timestamped energy data in the database.  
