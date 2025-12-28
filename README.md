@@ -8,7 +8,7 @@ Testing codevalid workflow
 - **Frontend:** TypeScript, React  
 - **Database:** PostgreSQL / MongoDB (for storing users and energy data)  
 - **Others:** Cron or background task scheduler for periodic energy data fetching    
-
+test
 ## 2. Functional Requirements
  
 ### 2.1 Energy Data Collection
