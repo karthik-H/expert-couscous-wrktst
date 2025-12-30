@@ -614,7 +614,8 @@
           },
           "implementation_id": "frontend_api_client"
         }
-      ]
+      ],
+      "test_path": ".codevalid/tests/energy_monitoring/frontend_api_client.ts"
     },
     {
       "implementation_id": "backend_energy_model",
@@ -787,7 +788,8 @@
           },
           "implementation_id": "backend_energy_model"
         }
-      ]
+      ],
+      "test_path": ".codevalid/tests/energy_monitoring/backend_energy_model.py"
     },
     {
       "implementation_id": "backend_energy_schema",
@@ -936,7 +938,8 @@
           },
           "implementation_id": "backend_energy_schema"
         }
-      ]
+      ],
+      "test_path": ".codevalid/tests/energy_monitoring/backend_energy_schema.py"
     }
   ],
   "component": [
@@ -1123,7 +1126,8 @@
           },
           "implementation_id": "frontend_onboarding_component"
         }
-      ]
+      ],
+      "test_path": ".codevalid/tests/user_onboarding/frontend_onboarding_component.ts"
     },
     {
       "implementation_id": "frontend_register_component",
@@ -1344,7 +1348,8 @@
           },
           "implementation_id": "frontend_register_component"
         }
-      ]
+      ],
+      "test_path": ".codevalid/tests/user_onboarding/frontend_register_component.ts"
     },
     {
       "implementation_id": "frontend_dashboard_component",
@@ -1529,7 +1534,8 @@
           },
           "implementation_id": "frontend_dashboard_component"
         }
-      ]
+      ],
+      "test_path": ".codevalid/tests/energy_monitoring/frontend_dashboard_component.ts"
     }
   ],
   "endpoint": [
@@ -1816,7 +1822,8 @@
           },
           "implementation_id": "backend_onboarding_upload_endpoint"
         }
-      ]
+      ],
+      "test_path": ".codevalid/tests/user_onboarding/backend_onboarding_upload_endpoint.py"
     },
     {
       "implementation_id": "backend_register_endpoint",
@@ -2041,7 +2048,8 @@
           },
           "implementation_id": "backend_register_endpoint"
         }
-      ]
+      ],
+      "test_path": ".codevalid/tests/user_onboarding/backend_register_endpoint.py"
     },
     {
       "implementation_id": "backend_energy_current_endpoint",
@@ -2192,7 +2200,8 @@
           },
           "implementation_id": "backend_energy_current_endpoint"
         }
-      ]
+      ],
+      "test_path": ".codevalid/tests/energy_monitoring/backend_energy_current_endpoint.py"
     },
     {
       "implementation_id": "backend_energy_history_endpoint",
@@ -2357,7 +2366,8 @@
           },
           "implementation_id": "backend_energy_history_endpoint"
         }
-      ]
+      ],
+      "test_path": ".codevalid/tests/energy_monitoring/backend_energy_history_endpoint.py"
     }
   ]
 }
