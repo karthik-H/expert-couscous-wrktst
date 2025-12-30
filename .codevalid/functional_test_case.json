@@ -123,7 +123,8 @@
           },
           "implementation_id": "main_startup_event"
         }
-      ]
+      ],
+      "test_path": ".codevalid/tests/energy_data_collection/main_startup_event.py"
     },
     {
       "implementation_id": "scheduler_start",
@@ -248,7 +249,8 @@
           },
           "implementation_id": "scheduler_start"
         }
-      ]
+      ],
+      "test_path": ".codevalid/tests/energy_data_collection/scheduler_start.py"
     },
     {
       "implementation_id": "scheduler_fetch_energy_data",
@@ -498,7 +500,8 @@
           },
           "implementation_id": "fetch_energy_data"
         }
-      ]
+      ],
+      "test_path": ".codevalid/tests/energy_data_collection/fetch_energy_data.py"
     },
     {
       "implementation_id": "frontend_api_client",
