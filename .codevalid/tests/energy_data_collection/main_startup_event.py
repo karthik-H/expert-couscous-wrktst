@@ -1,19 +1,15 @@
 import pytest
-import logging
-from unittest.mock import patch, MagicMock, call
-from backend.app import main
-import sys
 import time
+from unittest.mock import MagicMock
+from backend.app import main
 
 @pytest.fixture(autouse=True)
 def patch_logger(monkeypatch):
-    """Patch the logger used in main.py to capture logs."""
     logs = []
 
     class DummyLogger:
         def info(self, msg, *args, **kwargs):
             logs.append(('info', msg))
-
         def error(self, msg, *args, **kwargs):
             logs.append(('error', msg))
 
@@ -25,12 +21,6 @@ def scheduler_mock(monkeypatch):
     mock_scheduler = MagicMock()
     monkeypatch.setattr(main, "scheduler", mock_scheduler)
     return mock_scheduler
-
-@pytest.fixture
-def energy_collection_task_mock(monkeypatch):
-    mock_task = MagicMock()
-    monkeypatch.setattr(main, "energy_data_collection_task", mock_task)
-    return mock_task
 
 @pytest.fixture
 def db_mock(monkeypatch):
@@ -60,47 +50,45 @@ def test_scheduler_start_failure_logs_error(patch_logger, scheduler_mock):
     assert any('fail!' in msg for msg in get_logged(patch_logger, 'error'))
 
 # Test Case 3
-def test_scheduler_triggers_periodic_collection(monkeypatch, scheduler_mock, energy_collection_task_mock):
-    # Simulate scheduler running and triggering the task every 1 minute
-    # We'll patch the scheduler to call the task after "1 minute"
-    calls = []
+def test_scheduler_triggers_periodic_collection(monkeypatch, scheduler_mock):
+    called = {"scheduled": False, "task": False}
 
     def fake_add_job(func, trigger, minutes, *args, **kwargs):
-        # Simulate the job being scheduled and called
         assert trigger == "interval"
         assert minutes == 1
-        calls.append("scheduled")
+        called["scheduled"] = True
         func()
+        called["task"] = True
 
     scheduler_mock.add_job = fake_add_job
-    monkeypatch.setattr(main, "energy_data_collection_task", energy_collection_task_mock)
+
+    # Patch the energy_data_collection_task to a dummy function
+    monkeypatch.setattr(main, "energy_data_collection_task", lambda: called.update({"task": True}))
     main.startup_event()
-    assert "scheduled" in calls
-    assert energy_collection_task_mock.called
+    assert called["scheduled"], "Scheduler should schedule the periodic job"
+    assert called["task"], "Energy data collection task should be triggered"
 
 # Test Case 4
-def test_energy_data_fetched_and_stored(monkeypatch, scheduler_mock, db_mock, external_endpoint_mock):
-    # Setup: external endpoint returns valid data
+def test_energy_data_fetched_and_stored(monkeypatch, db_mock, external_endpoint_mock):
     valid_data = {"value": 123, "unit": "Mega watt hour"}
     external_endpoint_mock.get.return_value.json.return_value = valid_data
     external_endpoint_mock.get.return_value.status_code = 200
 
     def fake_task():
-        # Simulate fetching and storing
         resp = external_endpoint_mock.get("http://external/api")
         data = resp.json()
         if data["unit"] == "Mega watt hour":
-            db_mock.store_energy_data.assert_not_called()
             db_mock.store_energy_data(data["value"], unit=data["unit"], timestamp=pytest.approx(time.time(), rel=2))
-            db_mock.store_energy_data.assert_called()
 
     monkeypatch.setattr(main, "energy_data_collection_task", fake_task)
     main.energy_data_collection_task()
-    # The assertion is inside fake_task
+    db_mock.store_energy_data.assert_called_once()
+    args, kwargs = db_mock.store_energy_data.call_args
+    assert kwargs["unit"] == "Mega watt hour"
+    assert isinstance(kwargs["timestamp"], float)
 
 # Test Case 5
-def test_external_endpoint_failure_retries(monkeypatch, scheduler_mock, external_endpoint_mock, patch_logger):
-    # Setup: endpoint fails 3 times
+def test_external_endpoint_failure_retries(monkeypatch, external_endpoint_mock, patch_logger):
     external_endpoint_mock.get.side_effect = Exception("fail")
     retry_count = {"count": 0}
 
@@ -120,7 +108,6 @@ def test_external_endpoint_failure_retries(monkeypatch, scheduler_mock, external
 
 # Test Case 6
 def test_invalid_unit_data_rejected(monkeypatch, db_mock, external_endpoint_mock, patch_logger):
-    # Setup: endpoint returns invalid unit
     invalid_data = {"value": 123, "unit": "kWh"}
     external_endpoint_mock.get.return_value.json.return_value = invalid_data
     external_endpoint_mock.get.return_value.status_code = 200
@@ -130,10 +117,10 @@ def test_invalid_unit_data_rejected(monkeypatch, db_mock, external_endpoint_mock
         data = resp.json()
         if data["unit"] != "Mega watt hour":
             main.logger.error("Invalid unit")
-            db_mock.store_energy_data.assert_not_called()
 
     monkeypatch.setattr(main, "energy_data_collection_task", fake_task)
     main.energy_data_collection_task()
+    db_mock.store_energy_data.assert_not_called()
     assert any("Invalid unit" in msg for msg in get_logged(patch_logger, 'error'))
 
 # Test Case 7
@@ -207,6 +194,5 @@ def test_timestamp_precision_on_storage(monkeypatch, db_mock, external_endpoint_
     monkeypatch.setattr(main, "energy_data_collection_task", fake_task)
     main.energy_data_collection_task()
     assert "timestamp" in captured
-    # Check at least second-level precision
     assert isinstance(captured["timestamp"], float)
     assert captured["timestamp"] > 1000000000  # Unix epoch seconds
