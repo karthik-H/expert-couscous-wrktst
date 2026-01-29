@@ -11,7 +11,7 @@ Event Manager lets you create and manage **events**. Each event has a title and 
   - Title
   - Description (or “No description” if empty)
   - How many people are assigned (e.g. “2 users”)
-  - Buttons: **View**, **Edit**, **Remove**
+  - Buttons: **View**, **Edit**, **Remove** 
 - If there are no events, you see a short message and a link to add your first event.
 
 ### View a single event
